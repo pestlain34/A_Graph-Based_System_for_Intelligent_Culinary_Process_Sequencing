@@ -10,7 +10,7 @@ DROP TABLE IF EXISTS user_of_app;
 CREATE TABLE user_of_app(
     user_id SERIAL PRIMARY KEY,
     username VARCHAR(100) UNIQUE NOT NULL,
-    password VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
     date_of_registr DATE DEFAULT CURRENT_DATE,
     birthday_date TIMESTAMP,
     email VARCHAR(100) UNIQUE NOT NULL,
@@ -20,9 +20,9 @@ CREATE TABLE user_of_app(
 CREATE TABLE recipe(
     recipe_id SERIAL PRIMARY KEY,
     creation_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    recipe_type VARCHAR(50),              --салат, горячее, десерт
-    difficulty VARCHAR(50),               -- лёгкий, средний, сложный
-    total_time INTEGER,                   -- общее время в минутах
+    recipe_type VARCHAR(50),
+    difficulty VARCHAR(50),
+    total_time INTEGER,
     title VARCHAR(150) NOT NULL,
     description TEXT,
     user_id INTEGER NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE recipe_step(
     recipe_step_id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     duration INTEGER NOT NULL,  --в минутах
-    type_of VARCHAR(20) CHECK (type_of IN ('passive' , 'active')), --пассивный или активный
+    type_of VARCHAR(20) CHECK (type_of IN ('passive' , 'active')),
     description TEXT,
     recipe_id INTEGER NOT NULL,
     FOREIGN KEY (recipe_id) REFERENCES recipe(recipe_id)
@@ -112,9 +112,9 @@ VALUES
 -- Зависимости этапов
 INSERT INTO deps_of_step (recipe_step_id, prev_step_id)
 VALUES
-(4, 1),  -- варить макароны после кипячения воды
-(5, 2),  -- запекать после теста
-(5, 3);  -- запекать после соуса
+(4, 1),
+(5, 2),
+(5, 3);
 
 -- Связь рецепт ↔ ингредиенты
 INSERT INTO recipe_ingredient (recipe_id, ingredient_id, quantity)

@@ -1,0 +1,8 @@
+@import url('fonts.css');
+body{
+    background: yellow;
+}
+h1{
+    font-family: RussoOne-Regular, fantasy;
+    font-weight: 400;
+}
