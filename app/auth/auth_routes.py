@@ -18,7 +18,7 @@ from app.forms.login_form import LoginForm
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for('index.index'))
     regform = RegisterForm()
     if regform.validate_on_submit():
         db = get_db()
@@ -36,17 +36,17 @@ def register():
         except psycopg2.IntegrityError as e:
             db.rollback()
             flash('Произошла ошибка при регистрации', 'danger')
-            return render_template('registration.html', title='Регистрация', form=regform)
+            return render_template('auth/registration.html', title='Регистрация', form=regform)
 
         flash(f'Регистрация пользователя {regform.username.data} прошла успешно', 'success')
         return redirect(url_for('auth.login'))
-    return render_template('registration.html', title='Регистрация', form=regform)
+    return render_template('auth/registration.html', title='Регистрация', form=regform)
 
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for('index.index'))
     loginform = LoginForm()
     if loginform.validate_on_submit():
         db = get_db()
@@ -73,7 +73,7 @@ def login():
         flash(f'Поздравляем, {user.username}, вы успешно вошли в систему', 'success')
         next = request.args.get('next')
         if not next or urlsplit(next).netloc != '':
-            next = url_for('index')
+            next = url_for('index.index')
         return redirect(next)
     return render_template('auth/login.html', title='Вход', form=loginform)
 
@@ -83,4 +83,4 @@ def login():
 def logout():
     logout_user()
     flash('Вы вышли из системы', 'success')
-    return redirect(url_for('index'))
+    return redirect(url_for('index.index'))

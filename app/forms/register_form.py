@@ -2,7 +2,7 @@ import datetime
 
 from flask_wtf import FlaskForm
 from wtforms import StringField, validators, PasswordField, EmailField, DateField, SubmitField
-from wtforms.validators import ValidationError
+from wtforms.validators import ValidationError, Email
 from db.db import get_db
 
 
@@ -11,14 +11,14 @@ class RegisterForm(FlaskForm):
                            [validators.Length(min=4, max=100, message="Длина должна быть в пределах [4-100]"),
                             validators.DataRequired()])
     password = PasswordField('Пароль',
-                             [validators.Length(min=4, max=255, message="Длина должна быть в пределах [4-100]"),
-                              validators.DataRequired(),
+                             [validators.Length(min=4, max=255, message="Длина должна быть в пределах [4-255]"),
+                              validators.DataRequired(message= "Заполнение поля обязательно"),
                               validators.EqualTo('confirm', message='Пароли должны совпадать')])
     confirm = PasswordField('Подтвердите пароль')
     email = EmailField('Email', [validators.Length(min=10, max=100, message="Длина должна быть в пределах [10-100]"),
-                                 validators.DataRequired(),
+                                 validators.DataRequired(message= "Заполнение поля обязательно"),
                                  validators.Email(message="Формат должен быть как для почты")])
-    birthday_date = DateField('Дата рождения', format='%d-%m-%Y', validators=[validators.DataRequired()])
+    birthday_date = DateField('Дата рождения',format='%Y-%m-%d', validators=[validators.DataRequired(message= "Заполнение поля обязательно")],render_kw={"type": "date"})
     submit = SubmitField("Зарегистрироваться")
 
     def validate_email(self, field):
@@ -27,7 +27,7 @@ class RegisterForm(FlaskForm):
             cursor.execute(
                 """
                 SELECT 1
-                FROM email
+                FROM user_of_app
                 WHERE email = %s LIMIT 1
                 """,
                 (field.data,)
@@ -41,7 +41,7 @@ class RegisterForm(FlaskForm):
             cursor.execute(
                 """
                 SELECT 1
-                FROM email
+                FROM user_of_app
                 WHERE username = %s LIMIT 1
                 """,
                 (field.data,)

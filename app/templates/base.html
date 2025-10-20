@@ -14,9 +14,17 @@
         {% endif %}
     </head>
     <body>
-        <div><a href="{{ url_for('index.index') }}">Главная</a></div>
-        <hr>
-        {% block content %}{% endblock %}
+    <header class = "header"> {% include 'index/_header.html'%} </header>
+        <div class = 'page'>
+
+        <main class = "content">
+            {% include 'index/_flash.html'%}
+            {% block content %}{% endblock %}
+        </main>
+        <footer class = "py-3 my-4"> {% include 'index/_footer.html'%} </footer>
+        </div>
+
+
         {% block scripts %}
             {{ bootstrap.load_js() }}
         {% endblock %}

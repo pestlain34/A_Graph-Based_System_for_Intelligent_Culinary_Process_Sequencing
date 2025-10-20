@@ -98,7 +98,7 @@ VALUES
 -- Рецепты
 INSERT INTO recipe (title, description, recipe_type, difficulty, total_time, user_id)
 VALUES
-('Паста с соусом', 'Вкусная паста с соусом и сыром', 'горячее', 'средний', 40, 1);
+('Паста с соусом', 'Вкусная паста с соусом и сыром', 'основные блюда', 'средняя', 40, 1);
 
 -- Этапы рецепта
 INSERT INTO recipe_step (name, description, duration, type_of, recipe_id)

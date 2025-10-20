@@ -1,10 +1,55 @@
+from flask_login import login_required
 
-from flask import Blueprint, render_template, request, redirect, url_for
+from app.forms.main_data_of_recipe import Main_data_of_recipe_form
+from app.forms.create_step import CreateStep_form
+from flask import Blueprint, render_template, request, redirect, url_for, session
+
 bp = Blueprint('index',__name__)
 
 @bp.route('/')
 def index():
     return render_template('index/index.html')
+
+@bp.route('/create_recipe', methods = ['GET', 'POST'])
+@login_required
+def create_recipe():
+    form = Main_data_of_recipe_form()
+    if form.validate_on_submit():
+        session['recipe_data'] = {
+            'title': form.title.data,
+            'recipe_type': form.recipe_type.data,
+            'difficulty': form.difficulty.data,
+            'total_time': form.total_time.data
+        }
+        return redirect(url_for('index.create_step'))
+    return render_template('index/create_recipe.html', form = form)
+
+@bp.route('/create_step', methods = ['GET' , 'POST'])
+@login_required
+def create_step():
+    form = CreateStep_form()
+    if form.validate_on_submit():
+        recipe_data = session.get('recipe_data', {})
+        step_data = {
+            'name': form.name.data,
+            'duration': form.duration.data,
+            'type_of': form.type_of.data,
+            'description': form.description.data,
+            'prev_step_ids': form.prev_step_ids.data
+        }
+        if form.add_another_step.data:
+            steps = session.get('steps', [])
+            steps.append(step_data)
+            session['steps'] = steps
+            return redirect(url_for('index.create_step'))
+
+        if form.end_recipe.data:
+            steps = session.get('steps', [])
+            steps.append(step_data)
+            return redirect(url_for('recipe.success'))
+
+    return render_template('index/create_step.html', form = form)
+
 
 
 

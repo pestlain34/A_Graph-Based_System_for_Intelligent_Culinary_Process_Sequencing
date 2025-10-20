@@ -1,0 +1,22 @@
+from flask_wtf import FlaskForm
+from wtforms import StringField, validators, SubmitField, FieldList
+from wtforms.fields.choices import SelectField
+from wtforms.fields.numeric import IntegerField
+from wtforms.fields.simple import TextAreaField
+from wtforms.validators import NumberRange
+
+
+class CreateStep_form(FlaskForm):
+    name = StringField('Название этапа', validators=[validators.DataRequired(message = "Введите название этапа")],
+    render_kw = {"placeholder":"Например: Взбитие яйца для теста"})
+    duration = IntegerField('Длительность этапа', validators = [validators.InputRequired(message = "Введите длительность этапа"),NumberRange(min=1, message="Длительность должна быть минимум 1 минута")],
+                                                                render_kw={"placeholder": "Например: 45"})
+    type_of = SelectField('Тип этапа', choices = [
+        ('active', 'Активный (делаем что-то сами)'),
+        ('passive', 'Пассивный (ждем, пока что-то приготовится)')
+    ],validators = [validators.DataRequired(message = "Выберите тип этапа")])
+    description = TextAreaField('Описание этапа рецепта', validators=[validators.DataRequired(message = "Напишите описание рецепта")],
+    render_kw={"placeholder": "Например: Берём аккуратно яйцо, разбиваем его напополам, начинаем взбивать аккуратными интенсивными движениями"})
+    prev_step_ids = FieldList(IntegerField('ID предыдущего обязательного этапа'), min_entries=0)
+    add_another_step = SubmitField('Добавить еще один этап')
+    end_recipe = SubmitField('Завершить рецепт')
