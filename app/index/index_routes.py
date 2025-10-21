@@ -8,6 +8,8 @@ bp = Blueprint('index',__name__)
 
 @bp.route('/')
 def index():
+    session.pop('steps', None)
+    session.pop('recipe_data', None)
     return render_template('index/index.html')
 
 @bp.route('/create_recipe', methods = ['GET', 'POST'])
@@ -17,6 +19,7 @@ def create_recipe():
     if form.validate_on_submit():
         session['recipe_data'] = {
             'title': form.title.data,
+            'description': form.description.data,
             'recipe_type': form.recipe_type.data,
             'difficulty': form.difficulty.data,
             'total_time': form.total_time.data
@@ -27,25 +30,26 @@ def create_recipe():
 @bp.route('/create_step', methods = ['GET' , 'POST'])
 @login_required
 def create_step():
+    if 'steps' not in session:
+        session.pop('steps', None)
     form = CreateStep_form()
+    steps = session.get('steps', [])
+    form.prev_steps.choices = [(i , step['name']) for i, step in enumerate(steps)]
     if form.validate_on_submit():
-        recipe_data = session.get('recipe_data', {})
         step_data = {
             'name': form.name.data,
             'duration': form.duration.data,
             'type_of': form.type_of.data,
             'description': form.description.data,
-            'prev_step_ids': form.prev_step_ids.data
+            'prev_steps': form.prev_steps.data
         }
+        steps.append(step_data)
         if form.add_another_step.data:
-            steps = session.get('steps', [])
-            steps.append(step_data)
             session['steps'] = steps
             return redirect(url_for('index.create_step'))
 
         if form.end_recipe.data:
-            steps = session.get('steps', [])
-            steps.append(step_data)
+            session.pop('steps', None)
             return redirect(url_for('recipe.success'))
 
     return render_template('index/create_step.html', form = form)

@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, validators, SubmitField, FieldList
-from wtforms.fields.choices import SelectField
+from wtforms.fields.choices import SelectField, SelectMultipleField
 from wtforms.fields.numeric import IntegerField
 from wtforms.fields.simple import TextAreaField
 from wtforms.validators import NumberRange
@@ -17,6 +17,6 @@ class CreateStep_form(FlaskForm):
     ],validators = [validators.DataRequired(message = "Выберите тип этапа")])
     description = TextAreaField('Описание этапа рецепта', validators=[validators.DataRequired(message = "Напишите описание рецепта")],
     render_kw={"placeholder": "Например: Берём аккуратно яйцо, разбиваем его напополам, начинаем взбивать аккуратными интенсивными движениями"})
-    prev_step_ids = FieldList(IntegerField('ID предыдущего обязательного этапа'), min_entries=0)
+    prev_steps = SelectMultipleField('Предыдущие обязательные этапы(если есть)', choices = [], coerce = int)
     add_another_step = SubmitField('Добавить еще один этап')
     end_recipe = SubmitField('Завершить рецепт')
