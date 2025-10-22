@@ -5,6 +5,7 @@ DROP TABLE IF EXISTS ingredient;
 DROP TABLE IF EXISTS category;
 DROP TABLE IF EXISTS recipe;
 DROP TABLE IF EXISTS user_of_app;
+DROP TABLE IF EXISTS recipe_type;
 
 
 CREATE TABLE user_of_app(
@@ -16,17 +17,21 @@ CREATE TABLE user_of_app(
     email VARCHAR(100) UNIQUE NOT NULL,
     role VARCHAR(50) NOT NULL DEFAULT 'usr'
 );
-
+CREATE TABLE recipe_type(
+    recipe_type_id SERIAL PRIMARY KEY,
+    recipe_type_name VARCHAR(50) UNIQUE NOT NULL,
+    description TEXT
+);
 CREATE TABLE recipe(
     recipe_id SERIAL PRIMARY KEY,
     creation_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    recipe_type VARCHAR(50),
     difficulty VARCHAR(50),
-    total_time INTEGER,
     title VARCHAR(150) NOT NULL,
     description TEXT,
     user_id INTEGER NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES user_of_app(user_id)
+    recipe_type_id INTEGER NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES user_of_app(user_id),
+    FOREIGN KEY (recipe_type_id) REFERENCES recipe_type(recipe_type_id)
 );
 CREATE TABLE recipe_step(
     recipe_step_id SERIAL PRIMARY KEY,
@@ -35,15 +40,15 @@ CREATE TABLE recipe_step(
     type_of VARCHAR(20) CHECK (type_of IN ('passive' , 'active')),
     description TEXT,
     recipe_id INTEGER NOT NULL,
-    FOREIGN KEY (recipe_id) REFERENCES recipe(recipe_id)
+    FOREIGN KEY (recipe_id) REFERENCES recipe(recipe_id) ON DELETE CASCADE
 );
 
 CREATE TABLE deps_of_step (
     id_of_record SERIAL PRIMARY KEY,
     recipe_step_id INTEGER NOT NULL,
     prev_step_id INTEGER NOT NULL,
-    FOREIGN KEY (recipe_step_id) REFERENCES recipe_step(recipe_step_id),
-    FOREIGN KEY (prev_step_id) REFERENCES recipe_step(recipe_step_id)
+    FOREIGN KEY (recipe_step_id) REFERENCES recipe_step(recipe_step_id) ON DELETE CASCADE,
+    FOREIGN KEY (prev_step_id) REFERENCES recipe_step(recipe_step_id) ON DELETE CASCADE
 );
 
 CREATE TABLE category(
@@ -65,7 +70,7 @@ CREATE TABLE recipe_ingredient(
     ingredient_id INTEGER NOT NULL,
     recipe_id INTEGER NOT NULL,
     FOREIGN KEY (ingredient_id) REFERENCES ingredient(ingredient_id),
-    FOREIGN KEY (recipe_id) REFERENCES recipe(recipe_id)
+    FOREIGN KEY (recipe_id) REFERENCES recipe(recipe_id) ON DELETE CASCADE
 );
 
 -- Тестовые данные
@@ -85,6 +90,12 @@ VALUES
 ('Зерновые', 'Крупы, макароны, мука'),
 ('Приправы', 'Соль, специи, соусы');
 
+--Типы рецептов
+INSERT INTO recipe_type(recipe_type_name, description)
+VALUES
+('основные блюда', 'Блюда, которые подаются после закусок и перед десертом'),
+('салаты', 'Холодное блюдо, состоящее из одного вида или смеси разных видов сочетающихся между собой нарезанных продуктов в заправке'),
+('десерты', 'Завершающее блюдо стола, предназначенное для получения приятных вкусовых ощущений в конце обеда или ужина, обычно — сладкие деликатесы.');
 -- Ингредиенты
 INSERT INTO ingredient (name, category_id)
 VALUES
@@ -96,9 +107,9 @@ VALUES
 ('Соль', 5);
 
 -- Рецепты
-INSERT INTO recipe (title, description, recipe_type, difficulty, total_time, user_id)
+INSERT INTO recipe (title, description, recipe_type_id, difficulty,user_id)
 VALUES
-('Паста с соусом', 'Вкусная паста с соусом и сыром', 'основные блюда', 'средняя', 40, 1);
+('Паста с соусом', 'Вкусная паста с соусом и сыром', 1, 'средняя', 1);
 
 -- Этапы рецепта
 INSERT INTO recipe_step (name, description, duration, type_of, recipe_id)
