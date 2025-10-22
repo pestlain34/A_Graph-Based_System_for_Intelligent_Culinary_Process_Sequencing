@@ -29,7 +29,7 @@
           <mxGeometry y="220" width="160" height="30" as="geometry" />
         </mxCell>
         <mxCell id="j7Ol4mqIs3Lq_aQkKI8t-8" value="Рецепт" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=14;" parent="1" vertex="1">
-          <mxGeometry x="720" y="700" width="160" height="314" as="geometry" />
+          <mxGeometry x="720" y="690" width="160" height="270" as="geometry" />
         </mxCell>
         <mxCell id="j7Ol4mqIs3Lq_aQkKI8t-9" value="*id_рецепта" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="j7Ol4mqIs3Lq_aQkKI8t-8" vertex="1">
           <mxGeometry y="26" width="160" height="30" as="geometry" />
@@ -37,26 +37,23 @@
         <mxCell id="j7Ol4mqIs3Lq_aQkKI8t-10" value="Дата добавления" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="j7Ol4mqIs3Lq_aQkKI8t-8" vertex="1">
           <mxGeometry y="56" width="160" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="j7Ol4mqIs3Lq_aQkKI8t-11" value="Тип рецепта" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="j7Ol4mqIs3Lq_aQkKI8t-8" vertex="1">
-          <mxGeometry y="86" width="160" height="44" as="geometry" />
-        </mxCell>
         <mxCell id="j7Ol4mqIs3Lq_aQkKI8t-12" value="Сложность рецепта" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="j7Ol4mqIs3Lq_aQkKI8t-8" vertex="1">
-          <mxGeometry y="130" width="160" height="34" as="geometry" />
-        </mxCell>
-        <mxCell id="j7Ol4mqIs3Lq_aQkKI8t-13" value="Время приготовления" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="j7Ol4mqIs3Lq_aQkKI8t-8" vertex="1">
-          <mxGeometry y="164" width="160" height="30" as="geometry" />
+          <mxGeometry y="86" width="160" height="34" as="geometry" />
         </mxCell>
         <mxCell id="j7Ol4mqIs3Lq_aQkKI8t-14" value="Название" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="j7Ol4mqIs3Lq_aQkKI8t-8" vertex="1">
-          <mxGeometry y="194" width="160" height="30" as="geometry" />
+          <mxGeometry y="120" width="160" height="30" as="geometry" />
         </mxCell>
         <mxCell id="j7Ol4mqIs3Lq_aQkKI8t-15" value="Описание" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="j7Ol4mqIs3Lq_aQkKI8t-8" vertex="1">
-          <mxGeometry y="224" width="160" height="30" as="geometry" />
+          <mxGeometry y="150" width="160" height="30" as="geometry" />
         </mxCell>
         <mxCell id="j7Ol4mqIs3Lq_aQkKI8t-16" value="id_пользователя" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" parent="j7Ol4mqIs3Lq_aQkKI8t-8" vertex="1">
-          <mxGeometry y="254" width="160" height="30" as="geometry" />
+          <mxGeometry y="180" width="160" height="30" as="geometry" />
         </mxCell>
         <mxCell id="FeKNHqVMQ0SGkvtBrhsj-5" value="id_типа" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" vertex="1" parent="j7Ol4mqIs3Lq_aQkKI8t-8">
-          <mxGeometry y="284" width="160" height="30" as="geometry" />
+          <mxGeometry y="210" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="FeKNHqVMQ0SGkvtBrhsj-7" value="Состояние рецепта" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" vertex="1" parent="j7Ol4mqIs3Lq_aQkKI8t-8">
+          <mxGeometry y="240" width="160" height="30" as="geometry" />
         </mxCell>
         <mxCell id="j7Ol4mqIs3Lq_aQkKI8t-17" value="Этап рецепта" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=14;" parent="1" vertex="1">
           <mxGeometry x="530" y="648.91" width="110" height="240" as="geometry" />
@@ -133,7 +130,8 @@
         <mxCell id="j7Ol4mqIs3Lq_aQkKI8t-40" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="j7Ol4mqIs3Lq_aQkKI8t-16" target="j7Ol4mqIs3Lq_aQkKI8t-2" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="670" y="951" />
+              <mxPoint x="720" y="910" />
+              <mxPoint x="670" y="910" />
               <mxPoint x="670" y="501" />
             </Array>
           </mxGeometry>
@@ -141,8 +139,9 @@
         <mxCell id="j7Ol4mqIs3Lq_aQkKI8t-41" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="j7Ol4mqIs3Lq_aQkKI8t-37" target="j7Ol4mqIs3Lq_aQkKI8t-9" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
+              <mxPoint x="1140" y="739" />
               <mxPoint x="1005" y="739" />
-              <mxPoint x="1005" y="741" />
+              <mxPoint x="1005" y="731" />
             </Array>
           </mxGeometry>
         </mxCell>
