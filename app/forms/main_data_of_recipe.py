@@ -10,20 +10,10 @@ class Main_data_of_recipe_form(FlaskForm):
     render_kw={"placeholder": "Например: Борщ, Паста карбонара"})
     description = TextAreaField('Описание рецепта', validators=[validators.DataRequired(message = "Напишите описание рецепта")],
     render_kw={"placeholder": "Например: Очень простое и очень вкусное блюдо не требующее особых навыков готовки"})
-    recipe_type = SelectField('Тип рецепта', choices = [
-        ('салаты', 'салаты'),
-        ('основные блюда', 'основные блюда'),
-        ('гарниры', 'гарниры'),
-        ('закуски', 'закуски'),
-        ('соусы', 'соусы'),
-        ('десерты', 'десерты'),
-        ('напитки', 'напитки')
-    ],  validators = [validators.DataRequired(message = "Выберите тип рецепта")])
+    recipe_type = SelectField('Тип рецепта', choices= [], coerce = int, validators = [validators.DataRequired(message = "Выберите тип рецепта")])
     difficulty = SelectField('Сложность рецепта', choices = [
         ('сложная', 'сложная'),
         ('средняя', 'средняя'),
         ('лёгкая', 'лёгкая')
     ], validators = [validators.DataRequired(message = "Выберите сложность рецепта")])
-    total_time = IntegerField('Время приготовления блюда(мин)', validators = [InputRequired(message="Введите время в минутах")],
-    render_kw={"placeholder": "Например: 45"})
     go_next = SubmitField('Далее')
