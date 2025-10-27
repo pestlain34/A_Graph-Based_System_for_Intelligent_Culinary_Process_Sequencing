@@ -35,6 +35,6 @@ def create_app(test_config=None):
     bootstrap.init_app(app)
     app.register_blueprint(auth.bp)
     app.register_blueprint(index.bp)
-    login_manager.login_view = 'auth/login'
+    login_manager.login_view = 'auth.login'
     login_manager.login_message = 'Вы не можете получить доступ к данной странице, необходимо сначал войти'
     return app
