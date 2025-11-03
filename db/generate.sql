@@ -13,7 +13,7 @@ CREATE TABLE user_of_app(
     username VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     date_of_registr DATE DEFAULT CURRENT_DATE,
-    birthday_date TIMESTAMP,
+    birthday_date DATE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     role VARCHAR(50) NOT NULL DEFAULT 'usr'
 );
@@ -30,6 +30,7 @@ CREATE TABLE recipe(
     description TEXT,
     user_id INTEGER NOT NULL,
     recipe_type_id INTEGER NOT NULL,
+    status_of_recipe VARCHAR(50) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES user_of_app(user_id),
     FOREIGN KEY (recipe_type_id) REFERENCES recipe_type(recipe_type_id)
 );
@@ -76,10 +77,10 @@ CREATE TABLE recipe_ingredient(
 -- Тестовые данные
 
 -- Пользователи
-INSERT INTO user_of_app (username, email, password, role)
+INSERT INTO user_of_app (username, email, password, role,birthday_date)
 VALUES
-('Иван Иванов', 'ivan@example.com', '12345', 'user'),
-('Администратор', 'admin@example.com', 'admin', 'admin');
+('Иван Иванов', 'ivan@example.com', '12345', 'user','2005-07-27'),
+('Администратор', 'admin@example.com', 'admin', 'admin', '2006-07-27');
 
 -- Категории ингредиентов
 INSERT INTO category (name, description)
@@ -107,9 +108,9 @@ VALUES
 ('Соль', 5);
 
 -- Рецепты
-INSERT INTO recipe (title, description, recipe_type_id, difficulty,user_id)
+INSERT INTO recipe (title, description, recipe_type_id, difficulty,user_id, status_of_recipe)
 VALUES
-('Паста с соусом', 'Вкусная паста с соусом и сыром', 1, 'средняя', 1);
+('Паста с соусом', 'Вкусная паста с соусом и сыром', 1, 'средняя', 1, 'not_publicated');
 
 -- Этапы рецепта
 INSERT INTO recipe_step (name, description, duration, type_of, recipe_id)

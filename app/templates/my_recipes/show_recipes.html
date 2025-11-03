@@ -1,10 +1,9 @@
 {% extends 'base.html' %}
-{% block title %} Главная страница {% endblock %}
 {% block content %}
-<h1>Рецепты</h1>
-{% if all_recipes %}
+<h1>Мои рецепты</h1>
+{% if recipes %}
 <ul class="list-group">
-    {% for recipe in all_recipes %}
+    {% for recipe in recipes %}
     <li class="list-group-item mb-3">
         <div class="d-flex justify-content-between align-items-center">
             <div>
@@ -17,22 +16,18 @@
             </div>
             <div>
                 <form method="post"
-                      action="{{url_for('planner.add_to_planner', recipe_id = recipe['recipe_id'])}}">
-                    {{ add_to_planner_form.csrf_token }}
-                    <button type="submit" class="btn btn-sm btn-dark ms-auto"><span
-                            class="fa-solid fa-plus"></span></button>
+                      action="{{ url_for('my_recipes.delete_recipe', recipe_id=recipe['recipe_id']) }}"
+                      onsubmit="return confirm('Вы действительно хотите удалить рецепт?')">
+                    {{ delete_form.csrf_token }}
+                    <button type="submit" class="btn btn-sm btn-danger"><span class="fa fa-trash"></span></button>
                 </form>
             </div>
-
-
         </div>
-
 
     </li>
     {% endfor %}
 </ul>
 {% else %}
-<p>Пока что нет созданных рецептов</p>
+<p>У вас пока нет созданных рецептов.</p>
 {% endif %}
 {% endblock %}
-

@@ -6,6 +6,8 @@
         {% block styles %}
             {{ bootstrap.load_css() }}
             <link rel = "stylesheet" href = "{{url_for('static',filename='css/index.css')}}">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="SRI_HASH_HERE" crossorigin="anonymous">
+
         {% endblock %}
         {% if title %}
             <title>{{ title }}</title>
@@ -21,7 +23,7 @@
             {% include 'index/_flash.html'%}
             {% block content %}{% endblock %}
         </main>
-        <footer class = "py-3 my-4"> {% include 'index/_footer.html'%} </footer>
+        <footer class = "footer"> {% include 'index/_footer.html'%} </footer>
         </div>
 
 

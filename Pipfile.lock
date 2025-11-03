@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "6985225d660b3df1e649b27ddba999f76a3def493dc0c0eccc00970149c61d21"
+            "sha256": "0169a7bcd7b549e8d2a290ffcac3d8f474690bbcca2a088b330dd2475b131314"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -16,6 +16,31 @@
         ]
     },
     "default": {
+        "aiosmtpd": {
+            "hashes": [
+                "sha256:5a811826e1a5a06c25ebc3e6c4a704613eb9a1bcf6b78428fbe865f4f6c9a4b8",
+                "sha256:72c99179ba5aa9ae0abbda6994668239b64a5ce054471955fe75f581d2592475"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.8'",
+            "version": "==1.4.6"
+        },
+        "atpublic": {
+            "hashes": [
+                "sha256:156cfd3854e580ebfa596094a018fe15e4f3fa5bade74b39c3dabb54f12d6565",
+                "sha256:f90dcd17627ac21d5ce69e070d6ab89fb21736eb3277e8b693cc8484e1c7088c"
+            ],
+            "markers": "python_version >= '3.9'",
+            "version": "==6.0.2"
+        },
+        "attrs": {
+            "hashes": [
+                "sha256:16d5969b87f0859ef33a48b35d55ac1be6e42ae49d5e853b597db70c35c57e11",
+                "sha256:adcf7e2a1fb3b36ac48d97835bb6d8ade15b8dcce26aba8bf1d14847b57a3373"
+            ],
+            "markers": "python_version >= '3.9'",
+            "version": "==25.4.0"
+        },
         "blinker": {
             "hashes": [
                 "sha256:b4ce2265a7abece45e7cc896e98dbebe6cead56bcf805a3d23136d145f5445bf",
@@ -83,6 +108,15 @@
             "markers": "python_version >= '3.7'",
             "version": "==0.6.3"
         },
+        "flask-mail": {
+            "hashes": [
+                "sha256:44083e7b02bbcce792209c06252f8569dd5a325a7aaa76afe7330422bd97881d",
+                "sha256:a451e490931bb3441d9b11ebab6812a16bfa81855792ae1bf9c1e1e22c4e51e7"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.8'",
+            "version": "==0.10.0"
+        },
         "flask-wtf": {
             "hashes": [
                 "sha256:79d2ee1e436cf570bccb7d916533fa18757a2f18c290accffab1b9a0b684666b",
@@ -105,6 +139,7 @@
                 "sha256:c6242fc49e35958c8b15141343aa660db5fc54d4f13a1db01a3f5891b98700ef",
                 "sha256:e0050c0b7da1eea53ffaf149c0cfbb5c6e2e2b69c4bef22c81fa6eb73e5f6173"
             ],
+            "index": "pypi",
             "markers": "python_version >= '3.8'",
             "version": "==2.2.0"
         },

@@ -14,8 +14,13 @@ psycopg2-binary = "*"
 sqlparse = "*"
 flask-login = "*"
 email-validator = "*"
+flask-mail = "*"
+itsdangerous = "*"
+aiosmtpd = "*"
 
 [dev-packages]
+smtpd = "*"
+aiosmtpd = "*"
 
 [requires]
 python_version = "3.13"
