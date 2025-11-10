@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<p><strong>Общее время приготовления:</strong> {{total_time}} минут</p>
+<h2>Этапы приготовления</h2>
+
+<div class="row">
+    {% for step in better_plan %}
+    <div class="col-12 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">{{ loop.index }}. {{ step.name }}</h5>
+                <p class="card-text"><strong>Таймлайн:</strong> {{ step.start}} -- {{step.end}} мин</p>
+                <p class="card-text"><strong>Тип:</strong> {{ step.type_of }}</p>
+                <p class="card-text">{{ step.description }}</p>
+                {% if step.prev_numbers %}
+                <p class="card-text">
+                    <small class="text-muted">Зависит от:
+                        {% for i in range(step.prev_numbers|length) %}
+                        {{ step.prev_numbers[i] }} — {{ step.prev_names[i] }}{% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                    </small>
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

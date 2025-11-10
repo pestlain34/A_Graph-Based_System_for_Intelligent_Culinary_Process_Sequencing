@@ -9,6 +9,7 @@ from . import profile
 from . import errors
 from . import my_recipes
 from . import planner
+from . import admin
 
 def env_bool(name):
     if name == "True":
@@ -62,6 +63,7 @@ def create_app(test_config=None):
     app.register_blueprint(errors.bp)
     app.register_blueprint(my_recipes.bp)
     app.register_blueprint(planner.bp)
+    app.register_blueprint(admin.bp)
 
     login_manager.login_view = 'auth.login'
     login_manager.login_message = 'Вы не можете получить доступ к данной странице, необходимо сначал войти'

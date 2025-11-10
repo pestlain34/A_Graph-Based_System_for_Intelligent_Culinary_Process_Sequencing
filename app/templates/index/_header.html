@@ -7,12 +7,13 @@
         <li><a href="{{url_for('my_recipes.create_recipe')}}" class="nav-link px-2 text-white">Создать свой рецепт</a></li>
         <li><a href="{{url_for('profile.profile')}}" class="nav-link px-2 text-white">Профиль пользователя</a></li>
         <li><a href="{{url_for('my_recipes.show_recipes')}}" class="nav-link px-2 text-white">Мои рецепты</a></li>
-        <li><a href="#" class="nav-link px-2 text-white">Планировщик времени для рецептов</a></li>
+        <li><a href="{{url_for('planner.show_recipes_in_planner')}}" class="nav-link px-2 text-white">Планировщик времени для рецептов</a></li>
     </ul>
-    <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search"><input type="search"
-                                                                               class="form-control form-control-dark text-bg-dark"
-                                                                               placeholder="Search..."
-                                                                               aria-label="Search"></form>
+    <div>
+        {% if current_user.role == "admin" %}
+            <a href = "{{url_for('admin.main_admin_page')}}" class = "btn btn-outline-light me-2"> Панель администратора</a>
+        {% endif %}
+    </div>
     <div class="text-end">
         {% if current_user.is_authenticated %}
             <span> Добро пожаловать, {{current_user.username}} </span>
@@ -23,4 +24,5 @@
         {% endif %}
 
     </div>
+
 </div>

@@ -79,8 +79,8 @@ CREATE TABLE recipe_ingredient(
 -- Пользователи
 INSERT INTO user_of_app (username, email, password, role,birthday_date)
 VALUES
-('Иван Иванов', 'ivan@example.com', '12345', 'user','2005-07-27'),
-('Администратор', 'admin@example.com', 'admin', 'admin', '2006-07-27');
+('Иван Иванов', 'ivan@example.com', 'scrypt:32768:8:1$AJZG2Lp2BHuWOeFB$1bb7ec9f936ca6a5b9c3dc7eb85d3e388ed1edbb14aaceae5fcc0648c17ffafbebda4c0eb1493db15eaec8102f7315d9a7864a38013eb38d4f5149ce75fcdb63', 'user','2005-07-27'),
+('Администратор', 'admin@example.com', 'scrypt:32768:8:1$HlgyTmwIfrAuHTUS$4012e799c38d357c145cb34d4f9ab747f67179252193885ff12043bbc2fcf895ebf9d994a319cfc74c472f52a1ca09a97aba33582370b14997fd1c010564c6ae', 'admin', '2006-07-27');
 
 -- Категории ингредиентов
 INSERT INTO category (name, description)

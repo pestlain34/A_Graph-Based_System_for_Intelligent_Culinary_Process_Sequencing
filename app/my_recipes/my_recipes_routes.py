@@ -5,6 +5,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, current_user
 from psycopg2 import IntegrityError, DatabaseError
 
+from app.forms.add_to_planner_form import AddToPlannerForm
 from app.forms.create_step import CreateStep_form
 from app.forms.delete_form import DeleteForm
 from app.forms.main_data_of_recipe import Main_data_of_recipe_form
@@ -31,7 +32,8 @@ def show_recipes():
         flash("Произошла ошибка, при показе твоих рецептов", 'danger')
         recipes = []
     delete_form = DeleteForm()
-    return render_template("my_recipes/show_recipes.html", recipes = recipes, delete_form = delete_form)
+    add_to_planner_form = AddToPlannerForm()
+    return render_template("my_recipes/show_recipes.html", recipes = recipes, delete_form = delete_form , add_to_planner_form = add_to_planner_form)
 
 @bp.route('/create_recipe', methods = ['GET', 'POST'])
 @login_required

@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}
+Работа с пользователями
+{% endblock %}
+
+{% block content %}
+<h2 class="text-center mb-4">Пользователи</h2>
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+        <thead class="thead-dark">
+        <tr>
+            <th scope="col">id</th>
+            <th scope="col">Имя</th>
+            <th scope="col">Дата регистрации</th>
+            <th scope="col">Дата рождения</th>
+            <th scope="col">Почта</th>
+            <th scope="col">Роль</th>
+            <th scope="col">Действия</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for user in users_data %}
+        <tr>
+            <td>{{user['user_id']}}</td>
+            <td>{{user['username']}}</td>
+            <td>{{user['date_of_registr']}}</td>
+            <td>{{user['birthday_date']}}</td>
+            <td>{{user['email']}}</td>
+            <td>{{user['role']}}</td>
+            <td>
+                <div class="ms-auto d-flex align-items-center gap-1">
+                    <form method="post"
+                          action="#"
+                          onsubmit="return confirm('Вы действительно хотите заблокировать пользователя?')">
+                        {{ ban_form.csrf_token }}
+                        <button type="submit" class="btn btn-sm btn-danger"><span class="fa-solid fa-ban"></span>
+                        </button>
+                    </form>
+                    <form method="post"
+                          action="#"
+                          onsubmit="return confirm('Вы действительно хотите дать права администратора пользователю?')">
+                        {{ give_admin_form.csrf_token }}
+                        <button type="submit" class="btn btn-sm btn-dark ms-auto"><span
+                                class="fa-solid fa-user-tie"></span></button>
+                    </form>
+                    <a href="{{ url_for('admin.look_profile', user_id=user['user_id']) }}"
+                       class="btn btn-sm btn-dark ms-auto">
+                        <span class="fa-solid fa-eye"></span>
+                    </a>
+                </div>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td class="text-center">Пользователей не найдено</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+
+    </table>
+
+</div>
+{% endblock %}
