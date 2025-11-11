@@ -1,4 +1,5 @@
 from functools import wraps
+from urllib.parse import urlsplit
 
 from flask import render_template, request, url_for, redirect, flash, abort, Blueprint, current_app
 from flask_login import current_user
@@ -233,3 +234,48 @@ def delete_category(category_id):
         return redirect(url_for('admin.work_with_category'))
     flash("Произошло успешное удаление категории", 'success')
     return redirect(url_for('admin.work_with_category'))
+
+@bp.route("/delete_recipe/<int:recipe_id>", methods = ['POST'])
+@admin_required
+def delete_recipe(recipe_id):
+    db = get_db()
+    try:
+        with db.cursor() as cursor:
+            cursor.execute(
+                """
+                DELETE FROM recipe WHERE recipe_id = %s
+                """,
+                (recipe_id,)
+            )
+        db.commit()
+
+    except (DatabaseError, IntegrityError):
+        flash("Ошибка при удалении рецепта",'danger')
+        next = request.args.get('next')
+        if not next or urlsplit(next).netloc != '':
+            next = url_for('index.index')
+        return redirect(next)
+
+    flash("Успешное удаление рецепта",'success')
+    next = request.args.get('next')
+    if not next or urlsplit(next).netloc != '':
+        next = url_for('index.index')
+    return redirect(next)
+
+@bp.route("/work_with_recipes")
+@admin_required
+def work_with_recipes():
+    db = get_db()
+    try:
+        with db.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT recipe_id, creation_date, difficulty, title, description, status_of_recipe FROM recipe
+                """
+            )
+            recipes_data = cursor.fetchall()
+    except (DatabaseError, IntegrityError):
+        flash("Ошибка при отображении данных о рецептах", 'danger')
+        return redirect(url_for('admin.main_admin_page'))
+    delete_form = DeleteForm()
+    return render_template("admin/work_with_recipes.html", recipes_data=recipes_data, delete_form=delete_form)
