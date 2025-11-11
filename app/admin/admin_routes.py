@@ -4,7 +4,9 @@ from flask import render_template, request, url_for, redirect, flash, abort, Blu
 from flask_login import current_user
 from psycopg2 import DatabaseError, IntegrityError
 
+from app.forms.add_category_form import AddCategoryForm
 from app.forms.ban_user_form import Ban_User_Form
+from app.forms.delete_form import DeleteForm
 from app.forms.give_admin_form import Give_Admin
 from app.forms.unban_user_form import Unban_User_Form
 from db.db import get_db
@@ -168,3 +170,66 @@ def unban_user(user_id):
         return redirect(url_for('admin.work_with_users'))
 
     return redirect(url_for('admin.work_with_users'))
+
+@bp.route("/work_with_category")
+@admin_required
+def work_with_category():
+    db = get_db()
+    try:
+        with db.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT category_id, name, description FROM category ORDER BY category_id
+                """
+            )
+            category_data = cursor.fetchall()
+    except (DatabaseError, IntegrityError):
+        flash("Ошибка при получении данных о категориях", 'danger')
+        return redirect(url_for('admin.main_admin_page'))
+    add_form = AddCategoryForm()
+    delete_form = DeleteForm()
+    return render_template("admin/work_with_category.html", category_data=category_data, add_form=add_form, delete_form=delete_form)
+
+@bp.route("/add_category", methods = ['GET','POST'])
+@admin_required
+def add_category():
+    form = AddCategoryForm()
+    if form.validate_on_submit():
+        db = get_db()
+        try:
+            with db.cursor() as cursor:
+                cursor.execute(
+                    """
+                    INSERT INTO category (name, description) VALUES (%s, %s)
+                    """,
+                    (form.name.data, form.description.data)
+                )
+            db.commit()
+
+        except (DatabaseError, IntegrityError):
+            db.rollback()
+            flash("Ошибка при добавлении новой категории",'danger')
+            return redirect(url_for('admin.work_with_category'))
+        flash("Категория успешно добавлена",'success')
+        return redirect(url_for('admin.work_with_category'))
+    return render_template('admin/add_category.html', form=form)
+
+@bp.route("/delete_category/<int:category_id>", methods = ['POST'])
+@admin_required
+def delete_category(category_id):
+    db = get_db()
+    try:
+        with db.cursor() as cursor:
+            cursor.execute(
+                """
+                DELETE FROM category WHERE category_id = %s
+                """,
+                (category_id,)
+            )
+        db.commit()
+
+    except (DatabaseError, IntegrityError):
+        flash("Ошибка при удалении категории", 'danger')
+        return redirect(url_for('admin.work_with_category'))
+    flash("Произошло успешное удаление категории", 'success')
+    return redirect(url_for('admin.work_with_category'))
