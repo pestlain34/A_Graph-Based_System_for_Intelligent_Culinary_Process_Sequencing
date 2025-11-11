@@ -1,6 +1,10 @@
 import os
-from flask import Flask
+from flask import Flask, flash, redirect, url_for
 from flask.cli import load_dotenv
+from flask_login import current_user, logout_user
+from psycopg2 import IntegrityError, DatabaseError
+
+from db.db import get_db
 from .extensions import login_manager, bootstrap, mail
 from db import db
 from . import auth
@@ -15,6 +19,10 @@ def env_bool(name):
     if name == "True":
         return True
     return False
+
+
+
+
 
 
 load_dotenv()
@@ -67,4 +75,29 @@ def create_app(test_config=None):
 
     login_manager.login_view = 'auth.login'
     login_manager.login_message = 'Вы не можете получить доступ к данной странице, необходимо сначал войти'
+
+    @app.before_request
+    def check_user_is_banned():
+        if current_user.is_authenticated:
+            db = get_db()
+            try:
+                with db.cursor() as cursor:
+                    cursor.execute(
+                        """
+                        SELECT is_banned
+                        FROM user_of_app
+                        WHERE user_id = %s
+                        """,
+                        (current_user.id,)
+                    )
+                    row = cursor.fetchone()
+            except (IntegrityError, DatabaseError):
+                flash("Ошибка", 'danger')
+                return
+            if row:
+                if row['is_banned']:
+                    logout_user()
+                    flash("Ваша учётная запись была заблокирована", 'danger')
+                    return redirect(url_for('auth.login'))
+
     return app

@@ -15,7 +15,8 @@ CREATE TABLE user_of_app(
     date_of_registr DATE DEFAULT CURRENT_DATE,
     birthday_date DATE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
-    role VARCHAR(50) NOT NULL DEFAULT 'usr'
+    role VARCHAR(50) NOT NULL DEFAULT 'usr',
+    is_banned BOOL NOT NULL DEFAULT FALSE
 );
 CREATE TABLE recipe_type(
     recipe_type_id SERIAL PRIMARY KEY,

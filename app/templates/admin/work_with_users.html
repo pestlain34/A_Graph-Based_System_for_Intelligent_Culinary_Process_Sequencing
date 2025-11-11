@@ -29,15 +29,25 @@
             <td>{{user['role']}}</td>
             <td>
                 <div class="ms-auto d-flex align-items-center gap-1">
+                    {% if user['is_banned'] == False %}
+                        <form method="post"
+                              action="{{url_for('admin.ban_user', user_id = user['user_id'])}}"
+                              onsubmit="return confirm('Вы действительно хотите заблокировать пользователя?')">
+                            {{ ban_form.csrf_token }}
+                            <button type="submit" class="btn btn-sm btn-danger"><span class="fa-solid fa-ban"></span>
+                            </button>
+                        </form>
+                    {% else %}
+                        <form method="post"
+                              action="{{url_for('admin.unban_user', user_id = user['user_id'])}}"
+                              onsubmit="return confirm('Вы действительно хотите разблокировать пользователя?')">
+                            {{ unban_form.csrf_token }}
+                            <button type="submit" class="btn btn-sm btn-success"><span class="fa-regular fa-thumbs-up"></span>
+                            </button>
+                        </form>
+                    {% endif %}
                     <form method="post"
-                          action="#"
-                          onsubmit="return confirm('Вы действительно хотите заблокировать пользователя?')">
-                        {{ ban_form.csrf_token }}
-                        <button type="submit" class="btn btn-sm btn-danger"><span class="fa-solid fa-ban"></span>
-                        </button>
-                    </form>
-                    <form method="post"
-                          action="#"
+                          action="{{url_for('admin.give_admin', user_id=user['user_id'])}}"
                           onsubmit="return confirm('Вы действительно хотите дать права администратора пользователю?')">
                         {{ give_admin_form.csrf_token }}
                         <button type="submit" class="btn btn-sm btn-dark ms-auto"><span
