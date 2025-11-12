@@ -9,6 +9,7 @@ from app.forms.add_to_planner_form import AddToPlannerForm
 from app.forms.create_step import CreateStep_form
 from app.forms.delete_form import DeleteForm
 from app.forms.main_data_of_recipe import Main_data_of_recipe_form
+from app.forms.publicate_form import PublicateForm
 from db.db import get_db
 
 bp = Blueprint('my_recipes',__name__,url_prefix='/my_recipes')
@@ -22,7 +23,7 @@ def show_recipes():
         with db.cursor() as cursor:
             cursor.execute(
                 """
-                SELECT recipe_id, title, description, difficulty, creation_date FROM recipe WHERE user_id = %s ORDER BY creation_date DESC
+                SELECT recipe_id, title, description, difficulty, creation_date, status_of_recipe FROM recipe WHERE user_id = %s ORDER BY creation_date DESC
                 """,
                 (current_user.id,)
             )
@@ -33,7 +34,8 @@ def show_recipes():
         recipes = []
     delete_form = DeleteForm()
     add_to_planner_form = AddToPlannerForm()
-    return render_template("my_recipes/show_recipes.html", recipes = recipes, delete_form = delete_form , add_to_planner_form = add_to_planner_form)
+    publicate_form = PublicateForm()
+    return render_template("my_recipes/show_recipes.html", recipes = recipes, delete_form = delete_form , add_to_planner_form = add_to_planner_form, publicate_form = publicate_form)
 
 @bp.route('/create_recipe', methods = ['GET', 'POST'])
 @login_required
@@ -228,6 +230,29 @@ def delete_recipe(recipe_id):
         return redirect(url_for('my_recipes.show_recipes'))
     flash("Успешное удаление рецепта", 'success')
     return redirect(url_for('my_recipes.show_recipes'))
+
+@bp.route('/publicate_recipe/<int:recipe_id>', methods = ['POST'])
+@login_required
+def publicate_recipe(recipe_id):
+    db = get_db()
+    try:
+        with db.cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE recipe SET status_of_recipe = %s WHERE recipe_id = %s
+                """,
+                ("under_consideration", recipe_id,)
+            )
+        db.commit()
+
+    except (IntegrityError, DatabaseError):
+        flash("Ошибка при отправке рецепта на публикацию",'danger')
+        return redirect(url_for('my_recipes.show_recipes'))
+
+    flash("Успешная отправка рецепта на публикацию",'success')
+    return redirect(url_for('my_recipes.show_recipes'))
+
+
 
 # @bp.route('/update_recipe/<int:recipe_id>', methods = ['GET', 'POST'])
 # @login_required

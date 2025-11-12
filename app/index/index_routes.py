@@ -26,10 +26,12 @@ def index():
         with db.cursor() as cursor:
             cursor.execute(
                 """
-                SELECT recipe_id, title, description, difficulty, creation_date
+                SELECT recipe_id, title, description, difficulty, creation_date, status_of_recipe
                 FROM recipe
+                WHERE status_of_recipe = %s
                 ORDER BY creation_date DESC
-                """
+                """,
+                ("publicated",)
             )
             all_recipes = cursor.fetchall()
 

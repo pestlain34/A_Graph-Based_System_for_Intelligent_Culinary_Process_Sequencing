@@ -5,6 +5,7 @@
 
 {% block content %}
 <h2 class="text-center mb-4">Категории</h2>
+{% if category_data %}
 <div class="text-center my-4">
     <p><a href="{{url_for('admin.add_category')}}" class="btn btn-primary btn-lg">Добавить категорию</a></p>
 </div>
@@ -37,14 +38,14 @@
             </td>
 
         </tr>
-        {% else %}
-        <tr>
-            <td class="text-center">Категорий не найдено</td>
-        </tr>
         {% endfor %}
         </tbody>
 
     </table>
-
 </div>
+{% else %}
+<tr>
+    <td class="text-center">Категории не найдены</td>
+</tr>
+{% endif %}
 {% endblock %}

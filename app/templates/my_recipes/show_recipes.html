@@ -21,12 +21,21 @@
                     {{ delete_form.csrf_token }}
                     <button type="submit" class="btn btn-sm btn-danger"><span class="fa fa-trash"></span></button>
                 </form>
+                {% if recipe['status_of_recipe']  not in ['publicated', 'under_consideration'] %}
+                <form method="post"
+                      action="{{url_for('my_recipes.publicate_recipe', recipe_id = recipe['recipe_id'])}}">
+                    {{publicate_form.csrf_token }}
+                    <button type="submit" class="btn btn-sm btn-success ms-auto"><span
+                            class="fa-solid fa-reply"></span></button>
+                </form>
+                {% endif %}
                 <form method="post"
                       action="{{url_for('planner.add_to_planner', recipe_id = recipe['recipe_id'], next = request.path)}}">
                     {{ add_to_planner_form.csrf_token }}
                     <button type="submit" class="btn btn-sm btn-dark ms-auto"><span
                             class="fa-solid fa-plus"></span></button>
                 </form>
+
             </div>
         </div>
 

@@ -6,9 +6,11 @@ from flask_login import current_user
 from psycopg2 import DatabaseError, IntegrityError
 
 from app.forms.add_category_form import AddCategoryForm
+from app.forms.approve_form import ApproveForm
 from app.forms.ban_user_form import Ban_User_Form
 from app.forms.delete_form import DeleteForm
 from app.forms.give_admin_form import Give_Admin
+from app.forms.reject_form import RejectForm
 from app.forms.unban_user_form import Unban_User_Form
 from db.db import get_db
 
@@ -279,3 +281,67 @@ def work_with_recipes():
         return redirect(url_for('admin.main_admin_page'))
     delete_form = DeleteForm()
     return render_template("admin/work_with_recipes.html", recipes_data=recipes_data, delete_form=delete_form)
+
+@bp.route("/work_with_publications")
+@admin_required
+def work_with_publications():
+    db = get_db()
+    try:
+        with db.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT recipe_id, creation_date, difficulty, title, description, status_of_recipe FROM recipe WHERE status_of_recipe = %s ORDER BY recipe_id
+                """,
+                ("under_consideration",)
+            )
+            wait_to_be_publicated = cursor.fetchall()
+
+    except (DatabaseError, IntegrityError):
+        flash("Ошибка при получении рецептов на рассмотрении",'danger')
+        return redirect(url_for('admin.main_admin_page'))
+    approve_form = ApproveForm()
+    reject_form = RejectForm()
+    return render_template("admin/work_with_publications.html", wait_to_be_publicated=wait_to_be_publicated, approve_form=approve_form, reject_form=reject_form)
+
+@bp.route("/approve_recipe/<int:recipe_id>", methods = ['POST'])
+@admin_required
+def approve_recipe(recipe_id):
+    db = get_db()
+    try:
+        with db.cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE recipe
+                SET status_of_recipe = %s
+                WHERE recipe_id = %s
+                """,
+                ("publicated", recipe_id,)
+            )
+        db.commit()
+    except (DatabaseError, IntegrityError):
+        flash("Ошиюка при одобрении рецепта на публикацию",'danger')
+        return redirect(url_for('admin.work_with_publications'))
+    flash("Поздравляем, вы успешно одобрили на публикацию рецепт", 'success')
+    return redirect(url_for('admin.work_with_publications'))
+
+@bp.route("/reject_recipe/<int:recipe_id>", methods = ['POST'])
+@admin_required
+def reject_recipe(recipe_id):
+    db = get_db()
+    try:
+        with db.cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE recipe
+                SET status_of_recipe = %s
+                WHERE recipe_id = %s
+                """,
+                ("rejected", recipe_id,)
+            )
+        db.commit()
+    except (DatabaseError, IntegrityError):
+        flash("Ошибка при отклонении рецепта на публикацию", 'danger')
+        return redirect(url_for('admin.work_with_publications'))
+    flash("Поздравляем, вы успешно отклонили на публикацию рецепт", 'success')
+    return redirect(url_for('admin.work_with_publications'))
+

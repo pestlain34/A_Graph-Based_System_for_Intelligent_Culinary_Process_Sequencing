@@ -5,6 +5,7 @@
 
 {% block content %}
 <h2 class="text-center mb-4">Пользователи</h2>
+{% if users_data %}
 <div class="table-responsive">
     <table class="table table-striped table-hover align-middle">
         <thead class="thead-dark">
@@ -60,14 +61,14 @@
                 </div>
             </td>
         </tr>
-        {% else %}
-        <tr>
-            <td class="text-center">Пользователей не найдено</td>
-        </tr>
         {% endfor %}
         </tbody>
 
     </table>
-
 </div>
+{% else %}
+<tr>
+    <td class="text-center">Пользователи не найдены</td>
+</tr>
+{% endif %}
 {% endblock %}

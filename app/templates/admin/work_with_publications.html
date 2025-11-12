@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 {% block title %}
-Работа с рецептами
+Работа с публикациями
 {% endblock %}
 
 {% block content %}
 <h2 class="text-center mb-4">Рецепты</h2>
-{% if recipes_data %}
+{% if wait_to_be_publicated %}
 <div class="table-responsive">
     <table class="table table-striped table-hover align-middle">
         <thead class="thead-dark">
@@ -20,7 +20,7 @@
         </tr>
         </thead>
         <tbody>
-        {% for recipe in recipes_data %}
+        {% for recipe in wait_to_be_publicated %}
         <tr>
             <td>{{recipe['recipe_id']}}</td>
             <td>{{recipe['creation_date']}}</td>
@@ -31,10 +31,17 @@
             <td>
                 <div class="ms-auto d-flex align-items-center gap-1">
                     <form method="post"
-                          action="{{url_for('admin.delete_recipe', recipe_id = recipe['recipe_id'], next = request.path)}}"
-                          onsubmit="return confirm('Вы действительно хотите удалить рецепт?')">
-                        {{delete_form.csrf_token}}
-                        <button type="submit" class="btn btn-sm btn-danger"><span class="fa-solid fa-trash"></span>
+                          action="{{url_for('admin.approve_recipe', recipe_id=recipe['recipe_id'])}}"
+                          onsubmit="return confirm('Вы действительно хотите опубликовать данный рецепт?')">
+                        {{approve_form.csrf_token}}
+                        <button type="submit" class="btn btn-sm btn-success"><span class="fa-solid fa-check"></span>
+                        </button>
+                    </form>
+                    <form method="post"
+                          action="{{url_for('admin.reject_recipe', recipe_id = recipe['recipe_id'])}}"
+                          onsubmit="return confirm('Вы действительно хотите отклонить публикацию рецепта?')">
+                        {{reject_form.csrf_token}}
+                        <button type="submit" class="btn btn-sm btn-danger"><span class="fa-solid fa-xmark"></span>
                         </button>
                     </form>
                     <a href="{{ url_for('my_recipes.view_recipe', recipe_id=recipe['recipe_id']) }}"
@@ -51,7 +58,7 @@
 </div>
 {% else %}
 <tr>
-    <td class="text-center">Рецепты не найдены</td>
+    <td class="text-center">Публикации не найдены</td>
 </tr>
 {% endif %}
 {% endblock %}
