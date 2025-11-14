@@ -32,6 +32,9 @@ CREATE TABLE recipe(
     user_id INTEGER NOT NULL,
     recipe_type_id INTEGER NOT NULL,
     status_of_recipe VARCHAR(50) NOT NULL,
+    image VARCHAR(255) NOT NULL,
+    image_mime VARCHAR(100) NOT NULL,
+    image_filename TEXT NOT NULL,
     FOREIGN KEY (user_id) REFERENCES user_of_app(user_id),
     FOREIGN KEY (recipe_type_id) REFERENCES recipe_type(recipe_type_id)
 );
@@ -109,9 +112,9 @@ VALUES
 ('Соль', 5);
 
 -- Рецепты
-INSERT INTO recipe (title, description, recipe_type_id, difficulty,user_id, status_of_recipe)
+INSERT INTO recipe (title, description, recipe_type_id, difficulty,user_id, status_of_recipe, image, image_mime, image_filename)
 VALUES
-('Паста с соусом', 'Вкусная паста с соусом и сыром', 1, 'средняя', 1, 'not_publicated');
+('Паста с соусом', 'Вкусная паста с соусом и сыром', 1, 'средняя', 1, 'not_publicated', '', 'png', 'test');
 
 -- Этапы рецепта
 INSERT INTO recipe_step (name, description, duration, type_of, recipe_id)

@@ -5,6 +5,7 @@ from flask_login import current_user, logout_user
 from psycopg2 import IntegrityError, DatabaseError
 
 from db.db import get_db
+from instance.config import basedir
 from .extensions import login_manager, bootstrap, mail
 from db import db
 from . import auth
@@ -19,8 +20,6 @@ def env_bool(name):
     if name == "True":
         return True
     return False
-
-
 
 
 
@@ -45,7 +44,8 @@ def create_app(test_config=None):
         MAIL_USERNAME=os.getenv('MAIL_USERNAME'),
         MAIL_PASSWORD=os.getenv('MAIL_PASSWORD'),
         MAIL_DEFAULT_SENDER=os.getenv('MAIL_DEFAULT_SENDER') or os.getenv('MAIL_USERNAME'),
-        PASSWORD_RESET_TOKEN_EXPIRATION=int(os.getenv('PASSWORD_RESET_TOKEN_EXPIRATION', 3600))
+        PASSWORD_RESET_TOKEN_EXPIRATION=int(os.getenv('PASSWORD_RESET_TOKEN_EXPIRATION', 3600)),
+        UPLOAD_FOLDER=os.path.join(app.root_path, 'static', 'image', 'recipes')
     )
 
     if test_config is None:

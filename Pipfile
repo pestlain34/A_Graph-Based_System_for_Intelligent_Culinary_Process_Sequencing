@@ -17,6 +17,7 @@ email-validator = "*"
 flask-mail = "*"
 itsdangerous = "*"
 aiosmtpd = "*"
+pillow = "*"
 
 [dev-packages]
 smtpd = "*"

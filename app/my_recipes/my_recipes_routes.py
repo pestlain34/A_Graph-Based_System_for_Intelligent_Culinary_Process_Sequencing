@@ -1,9 +1,12 @@
+import os
 from collections import defaultdict
+from uuid import uuid4
 
 import psycopg2
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app
 from flask_login import login_required, current_user
 from psycopg2 import IntegrityError, DatabaseError
+from werkzeug.utils import secure_filename
 
 from app.forms.add_to_planner_form import AddToPlannerForm
 from app.forms.create_step import CreateStep_form
@@ -58,8 +61,24 @@ def create_recipe():
             'recipe_type_id': form.recipe_type.data,
             'difficulty': form.difficulty.data,
             'user_id': current_user.id,
-            'status_of_recipe': 'not_publicated'
+            'status_of_recipe': 'not_publicated',
+            'image_path': None,
+            'image_mimetype': None,
+            'image_filename': None,
         }
+        f = form.image.data
+        if f:
+            filename = secure_filename(f.filename or '')
+            ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
+            unique = f"{uuid4().hex}.{ext}" if ext else uuid4().hex
+            upload_folder = current_app.config['UPLOAD_FOLDER']
+            os.makedirs(upload_folder, exist_ok=True)
+            dest = os.path.join(upload_folder, unique)
+            f.save(dest)
+            rel_path = os.path.join('image', 'recipes', unique).replace('\\', '/')
+            session['image'] = rel_path
+            session['image_mime'] = f.mimetype
+            session['image_filename'] = filename
         session['steps'] = []
         return redirect(url_for('my_recipes.create_step'))
 
@@ -99,10 +118,10 @@ def create_step():
                 with db.cursor() as cursor:
                     cursor.execute(
                         """
-                        INSERT INTO recipe (difficulty, title , description , user_id, recipe_type_id, status_of_recipe) VALUES (%s, %s, %s, %s, %s,%s)
+                        INSERT INTO recipe (difficulty, title , description , user_id, recipe_type_id, status_of_recipe, image, image_mime, image_filename) VALUES (%s, %s, %s, %s, %s,%s, %s, %s, %s)
                         RETURNING recipe_id
                         """,
-                        (recipe_data['difficulty'], recipe_data['title'], recipe_data['description'], recipe_data['user_id'],recipe_data['recipe_type_id'],recipe_data['status_of_recipe'])
+                        (recipe_data['difficulty'], recipe_data['title'], recipe_data['description'], recipe_data['user_id'],recipe_data['recipe_type_id'],recipe_data['status_of_recipe'], session['image'], session['image_mime'], session['image_filename'])
                     )
                     row = cursor.fetchone()
                     recipe_id = row['recipe_id']
