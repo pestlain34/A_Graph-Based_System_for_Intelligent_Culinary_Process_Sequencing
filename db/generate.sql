@@ -16,7 +16,10 @@ CREATE TABLE user_of_app(
     birthday_date DATE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     role VARCHAR(50) NOT NULL DEFAULT 'usr',
-    is_banned BOOL NOT NULL DEFAULT FALSE
+    is_banned BOOL NOT NULL DEFAULT FALSE,
+    image VARCHAR(255) NOT NULL DEFAULT 'image/profile_photo/1250689.png',
+    image_mime VARCHAR(100) NOT NULL DEFAULT 'image/png',
+    image_filename TEXT NOT NULL DEFAULT 'default'
 );
 CREATE TABLE recipe_type(
     recipe_type_id SERIAL PRIMARY KEY,

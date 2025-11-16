@@ -1,5 +1,5 @@
 import os
-from flask import Flask, flash, redirect, url_for
+from flask import Flask, flash, redirect, url_for, session, current_app, request
 from flask.cli import load_dotenv
 from flask_login import current_user, logout_user
 from psycopg2 import IntegrityError, DatabaseError
@@ -15,6 +15,8 @@ from . import errors
 from . import my_recipes
 from . import planner
 from . import admin
+from .my_recipes.utils import delete_file
+
 
 def env_bool(name):
     if name == "True":
@@ -77,6 +79,21 @@ def create_app(test_config=None):
     login_manager.login_message = 'Вы не можете получить доступ к данной странице, необходимо сначал войти'
 
     @app.before_request
+    def tmp_file_deleting():
+        tmp = session.get('image')
+        if not tmp:
+            return
+        if request.endpoint in ('static', 'werkzeug.debugger', 'my_recipes.create_recipe', 'my_recipes.create_step'):
+            return
+        delete_file(current_app.static_folder, tmp)
+        session.pop('steps', None)
+        session.pop('recipe_data', None)
+        session.pop('image', None)
+        session.pop('image_mime', None)
+        session.pop('image_filename', None)
+        session.pop('creating_recipe', None)
+
+    @app.before_request
     def check_user_is_banned():
         if current_user.is_authenticated:
             db = get_db()
@@ -99,5 +116,6 @@ def create_app(test_config=None):
                     logout_user()
                     flash("Ваша учётная запись была заблокирована", 'danger')
                     return redirect(url_for('auth.login'))
+
 
     return app

@@ -5,12 +5,15 @@
 <ul class="list-group">
     {% for recipe in recipes %}
     <li class="list-group-item mb-3">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
+        <div class="d-flex justify-content-between align-items-center gap-3">
+            <img src="{{ url_for('static', filename=recipe['image']) }}"
+             class="img-thumbnail"
+             style="width:220px; height:150px; object-fit:cover;">
+            <div class="flex-grow-1" style="min-width: 0;">
                 <a href="{{ url_for('my_recipes.view_recipe', recipe_id=recipe['recipe_id']) }}">
                     <strong>{{ recipe['title'] }}</strong>
                 </a>
-                <div>{{ recipe['description'] }}</div>
+                <div class="mb-1 text-break" style="white-space: normal;">{{ recipe['description'] }}</div>
                 <small>Сложность: {{ recipe['difficulty'] or '-' }}</small>
 
             </div>

@@ -2,10 +2,14 @@
 {% from 'bootstrap5/form.html' import render_form %}
 {% block content %}
 <h1>Данные профиля пользователя</h1>
+<img src="{{url_for('static', filename = current_user.image)}}"
+     class="img-thumbnail"
+     style="width: 220px; height: 220px; object-fit: cover;">
 <p><strong>Имя пользователя:</strong> {{form.username.data}}</p>
 <p><strong>Email пользователя:</strong> {{form.email.data}}</p>
 <p><strong>Дата рождения пользователя:</strong> {{form.birthday_date.data}}</p>
 <p><strong>Дата регистрации пользователя:</strong> {{current_user.date_of_registr}}</p>
 <h2>Изменить данные</h2>
 {{ render_form(form, method="POST", action="") }}
+<a href = "{{url_for('profile.update_profile_picture')}}" class="btn btn-primary btn-sm mt-3">Сменить фото профиля</a>
 {% endblock %}

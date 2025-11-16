@@ -1,12 +1,13 @@
 from collections import defaultdict
 from urllib.parse import urlsplit
 
-from flask import Blueprint, session, redirect, render_template, request, url_for, flash
+from flask import Blueprint, session, redirect, render_template, request, url_for, flash, current_app
 from flask_login import login_required
 from psycopg2 import DatabaseError, IntegrityError
 
 from app.forms.add_to_planner_form import AddToPlannerForm
 from app.forms.delete_form import DeleteForm
+from app.my_recipes.utils import delete_file
 from app.planner.topologicalsort import Step, schedule_improved
 from db.db import get_db
 
@@ -46,12 +47,11 @@ def show_recipes_in_planner():
         with db.cursor() as cursor:
             cursor.execute(
                 """
-                SELECT recipe_id, title, description, difficulty, creation_date FROM recipe WHERE recipe_id = ANY(%s) ORDER BY creation_date DESC
+                SELECT recipe_id, title, description, difficulty, creation_date, image, image_mime, image_filename FROM recipe WHERE recipe_id = ANY(%s) ORDER BY creation_date DESC
                 """,
                 (recipes_in_planner,)
             )
             rows = cursor.fetchall()
-
     except (DatabaseError, IntegrityError):
         flash("Ошибка при загрузке данных из базы", 'danger')
         rows = []

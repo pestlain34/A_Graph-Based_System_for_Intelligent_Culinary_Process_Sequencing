@@ -13,6 +13,7 @@ from app.forms.create_step import CreateStep_form
 from app.forms.delete_form import DeleteForm
 from app.forms.main_data_of_recipe import Main_data_of_recipe_form
 from app.forms.publicate_form import PublicateForm
+from app.my_recipes.utils import save_temp_file, temp_to_permanent, delete_file
 from db.db import get_db
 
 bp = Blueprint('my_recipes',__name__,url_prefix='/my_recipes')
@@ -26,7 +27,7 @@ def show_recipes():
         with db.cursor() as cursor:
             cursor.execute(
                 """
-                SELECT recipe_id, title, description, difficulty, creation_date, status_of_recipe FROM recipe WHERE user_id = %s ORDER BY creation_date DESC
+                SELECT recipe_id, title, description, difficulty, creation_date, status_of_recipe, image, image_mime, image_filename FROM recipe WHERE user_id = %s ORDER BY creation_date DESC
                 """,
                 (current_user.id,)
             )
@@ -68,18 +69,12 @@ def create_recipe():
         }
         f = form.image.data
         if f:
-            filename = secure_filename(f.filename or '')
-            ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
-            unique = f"{uuid4().hex}.{ext}" if ext else uuid4().hex
-            upload_folder = current_app.config['UPLOAD_FOLDER']
-            os.makedirs(upload_folder, exist_ok=True)
-            dest = os.path.join(upload_folder, unique)
-            f.save(dest)
-            rel_path = os.path.join('image', 'recipes', unique).replace('\\', '/')
-            session['image'] = rel_path
+            rel = save_temp_file(f, current_app.static_folder)
+            session['image'] = rel
             session['image_mime'] = f.mimetype
-            session['image_filename'] = filename
+            session['image_filename'] = secure_filename(f.filename or '')
         session['steps'] = []
+        session['creating_recipe'] = True
         return redirect(url_for('my_recipes.create_step'))
 
     return render_template('my_recipes/create_recipe.html', form = form)
@@ -114,6 +109,10 @@ def create_step():
             db = get_db()
             recipe_data = session.get('recipe_data', {})
             steps_data = session.get('steps', [])
+            temp_rel = session.get('image')
+            if temp_rel:
+                perm_rel = temp_to_permanent(current_app.static_folder, temp_rel)
+                session['image'] = perm_rel
             try:
                 with db.cursor() as cursor:
                     cursor.execute(
@@ -150,6 +149,7 @@ def create_step():
                                     (cur_db_id, prev_db_id)
                                 )
                 db.commit()
+
             except psycopg2.IntegrityError:
                 db.rollback()
                 flash('Ошибка при сохранении рецепта в базу данных, попробуйте еще раз')
@@ -159,6 +159,10 @@ def create_step():
 
             session.pop('steps', None)
             session.pop('recipe_data', None)
+            session.pop('image', None)
+            session.pop('image_mime', None)
+            session.pop('image_filename', None)
+            session.pop('creating_recipe', None)
             flash('Рецепт успешно создан', 'success')
             return redirect(url_for('my_recipes.view_recipe', recipe_id= recipe_id))
 
@@ -223,7 +227,7 @@ def delete_recipe(recipe_id):
         with db.cursor() as cursor:
             cursor.execute(
                 """
-                SELECT user_id FROM recipe WHERE recipe_id = %s
+                SELECT user_id, image FROM recipe WHERE recipe_id = %s
                 """,
                 (recipe_id,)
             )
@@ -235,7 +239,8 @@ def delete_recipe(recipe_id):
             if curid != current_user.id:
                 flash("У вас нет прав удалять этот рецепт", 'danger')
                 return redirect(url_for('my_recipes.show_recipes'))
-
+            relpath = row['image']
+            delete_file(current_app.static_folder, relpath)
             cursor.execute(
                 """
                 DELETE FROM recipe WHERE recipe_id = %s
@@ -247,6 +252,7 @@ def delete_recipe(recipe_id):
         db.rollback()
         flash("Ошибка при удалении рецепта",'danger')
         return redirect(url_for('my_recipes.show_recipes'))
+
     flash("Успешное удаление рецепта", 'success')
     return redirect(url_for('my_recipes.show_recipes'))
 

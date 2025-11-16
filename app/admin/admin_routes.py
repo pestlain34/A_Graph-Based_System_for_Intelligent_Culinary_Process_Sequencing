@@ -12,6 +12,7 @@ from app.forms.delete_form import DeleteForm
 from app.forms.give_admin_form import Give_Admin
 from app.forms.reject_form import RejectForm
 from app.forms.unban_user_form import Unban_User_Form
+from app.my_recipes.utils import delete_file
 from db.db import get_db
 
 bp = Blueprint("admin", __name__, url_prefix = "/admin")
@@ -242,6 +243,16 @@ def delete_category(category_id):
 def delete_recipe(recipe_id):
     db = get_db()
     try:
+        with db.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT image FROM recipe WHERE recipe_id = %s
+                """,
+                (recipe_id,)
+            )
+            row = cursor.fetchone()
+        relpath = row['image']
+        delete_file(current_app.static_folder, relpath)
         with db.cursor() as cursor:
             cursor.execute(
                 """
