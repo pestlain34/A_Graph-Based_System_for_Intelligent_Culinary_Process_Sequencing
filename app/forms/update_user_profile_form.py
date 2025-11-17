@@ -2,8 +2,8 @@ import datetime
 
 from flask_login import current_user
 from flask_wtf import FlaskForm
-from wtforms import StringField, validators, PasswordField, EmailField, DateField, SubmitField
-from wtforms.validators import ValidationError, Email
+from wtforms import StringField, validators, EmailField, DateField, SubmitField
+from wtforms.validators import ValidationError
 from db.db import get_db
 
 
@@ -12,9 +12,11 @@ class UpdateUserForm(FlaskForm):
                            [validators.Length(min=4, max=100, message="Длина должна быть в пределах [4-100]"),
                             validators.DataRequired()])
     email = EmailField('Email', [validators.Length(min=10, max=100, message="Длина должна быть в пределах [10-100]"),
-                                 validators.DataRequired(message= "Заполнение поля обязательно"),
+                                 validators.DataRequired(message="Заполнение поля обязательно"),
                                  validators.Email(message="Формат должен быть как для почты")])
-    birthday_date = DateField('Дата рождения',format='%Y-%m-%d', validators=[validators.DataRequired(message= "Заполнение поля обязательно")],render_kw={"type": "date"})
+    birthday_date = DateField('Дата рождения', format='%Y-%m-%d',
+                              validators=[validators.DataRequired(message="Заполнение поля обязательно")],
+                              render_kw={"type": "date"})
     submit = SubmitField("Изменить данные профиля")
 
     def validate_email(self, field):

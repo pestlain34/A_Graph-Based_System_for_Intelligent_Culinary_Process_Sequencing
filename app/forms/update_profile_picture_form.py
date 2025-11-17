@@ -8,7 +8,9 @@ from werkzeug.utils import secure_filename
 from wtforms import SubmitField
 from wtforms.validators import ValidationError
 
-ALLOWED_EXTENSIONS={'png', 'jpg', 'jpeg', 'gif', 'webp'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+
+
 class UpdatePictureForm(FlaskForm):
     image = FileField('Фото профиля',
                       validators=[FileRequired(), FileAllowed(list(ALLOWED_EXTENSIONS), 'Только изображения')])

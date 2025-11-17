@@ -1,26 +1,28 @@
 <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start"><a href="/"
                                                                                                     class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
-    <img class = 'header_image' src = {{url_for('static' , filename = 'image/logoforproject.png')}} alt = "index_logo">
+    <img class='header_image' src={{url_for('static' , filename='image/logoforproject.png' )}} alt="index_logo">
 </a>
     <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
         <li><a href="{{ url_for('index.index') }}" class="nav-link px-2 text-white">Главная</a></li>
-        <li><a href="{{url_for('my_recipes.create_recipe')}}" class="nav-link px-2 text-white">Создать свой рецепт</a></li>
+        <li><a href="{{url_for('my_recipes.create_recipe')}}" class="nav-link px-2 text-white">Создать свой рецепт</a>
+        </li>
         <li><a href="{{url_for('profile.profile')}}" class="nav-link px-2 text-white">Профиль пользователя</a></li>
         <li><a href="{{url_for('my_recipes.show_recipes')}}" class="nav-link px-2 text-white">Мои рецепты</a></li>
-        <li><a href="{{url_for('planner.show_recipes_in_planner')}}" class="nav-link px-2 text-white">Планировщик времени для рецептов</a></li>
+        <li><a href="{{url_for('planner.show_recipes_in_planner')}}" class="nav-link px-2 text-white">Планировщик
+            времени для рецептов</a></li>
     </ul>
     <div>
         {% if current_user.role == "admin" %}
-            <a href = "{{url_for('admin.main_admin_page')}}" class = "btn btn-outline-light me-2"> Панель администратора</a>
+        <a href="{{url_for('admin.main_admin_page')}}" class="btn btn-outline-light me-2"> Панель администратора</a>
         {% endif %}
     </div>
     <div class="text-end">
         {% if current_user.is_authenticated %}
-            <span> Добро пожаловать, {{current_user.username}} </span>
-            <a href = "{{url_for('auth.logout')}}" class="btn btn-outline-light me-2">Выйти</a>
+        <span> Добро пожаловать, {{current_user.username}} </span>
+        <a href="{{url_for('auth.logout')}}" class="btn btn-outline-light me-2">Выйти</a>
         {% else %}
-            <a href = "{{url_for('auth.login')}}" class="btn btn-outline-light me-2">Войти</a>
-            <a href = "{{url_for('auth.register')}}" class="btn btn-warning">Регистрация</a>
+        <a href="{{url_for('auth.login')}}" class="btn btn-outline-light me-2">Войти</a>
+        <a href="{{url_for('auth.register')}}" class="btn btn-warning">Регистрация</a>
         {% endif %}
 
     </div>

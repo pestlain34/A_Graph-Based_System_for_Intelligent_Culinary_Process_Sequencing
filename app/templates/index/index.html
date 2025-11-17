@@ -1,6 +1,23 @@
 {% extends 'base.html' %}
+{% from 'bootstrap5/form.html' import render_field %}
 {% block title %} Главная страница {% endblock %}
 {% block content %}
+<form method="get" action="{{ url_for('index.index') }}" class="card p-3 mb-3">
+    <div class="row g-2">
+        <div class="col-md-4">
+            {{ render_field(search_form.recipe_type, class="form-select") }}
+        </div>
+        <div class="col-md-4">
+            {{ render_field(search_form.category, class="form-select") }}
+        </div>
+        <div class="col-md-4">
+            {{ render_field(search_form.ingredient, class="form-select") }}
+        </div>
+    </div>
+    <div class="mt-2">
+        <button class="btn btn-danger" type="submit">{{ search_form.submit.label.text }}</button>
+    </div>
+</form>
 <h1>Рецепты</h1>
 {% if all_recipes %}
 <ul class="list-group">
@@ -8,13 +25,13 @@
     <li class="list-group-item mb-3">
         <div class="d-flex justify-content-between align-items-center gap-3">
             <img src="{{ url_for('static', filename= recipe['image']) }}"
-             class="img-thumbnail"
-             style="width:220px; height:150px; object-fit:cover;">
-            <div class = "flex-grow-1" style = "min-width:0;">
+                 class="img-thumbnail"
+                 style="width:220px; height:150px; object-fit:cover;">
+            <div class="flex-grow-1" style="min-width:0;">
                 <a href="{{ url_for('my_recipes.view_recipe', recipe_id=recipe['recipe_id']) }}">
                     <strong>{{ recipe['title'] }}</strong>
                 </a>
-                <div class = "mb-1 text-break" style = "white-space:normal;">{{ recipe['description'] }}</div>
+                <div class="mb-1 text-break" style="white-space:normal;">{{ recipe['description'] }}</div>
                 <small>Сложность: {{ recipe['difficulty'] or '-' }}</small>
 
             </div>
@@ -28,13 +45,13 @@
                 </form>
 
                 {% if current_user.role == 'admin' %}
-                    <form method="post"
-                          action="{{url_for('admin.delete_recipe', recipe_id = recipe['recipe_id'])}}"
-                          onsubmit="return confirm('Вы действительно хотите удалить этот рецепт?')">
-                        {{delete_form.csrf_token}}
-                        <button type="submit" class="btn btn-sm btn-danger"><span class="fa-solid fa-trash"></span>
-                        </button>
-                    </form>
+                <form method="post"
+                      action="{{url_for('admin.delete_recipe', recipe_id = recipe['recipe_id'])}}"
+                      onsubmit="return confirm('Вы действительно хотите удалить этот рецепт?')">
+                    {{delete_form.csrf_token}}
+                    <button type="submit" class="btn btn-sm btn-danger"><span class="fa-solid fa-trash"></span>
+                    </button>
+                </form>
                 {% endif %}
             </div>
 

@@ -1,34 +1,35 @@
 <!DOCTYPE html>
 <html lang="ru">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        {% block styles %}
-            {{ bootstrap.load_css() }}
-            <link rel = "stylesheet" href = "{{url_for('static',filename='css/index.css')}}">
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="SRI_HASH_HERE" crossorigin="anonymous">
-            <link rel = "icon" type = "image/png" href = "{{url_for('static', filename = 'icon/logoforproject.png')}}">
-        {% endblock %}
-        {% if title %}
-            <title>{{ title }}</title>
-        {% else %}
-            <title>Добро пожаловать</title>
-        {% endif %}
-    </head>
-    <body>
-    <header class = "header"> {% include 'index/_header.html'%} </header>
-        <div class = 'page'>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    {% block styles %}
+    {{ bootstrap.load_css() }}
+    <link rel="stylesheet" href="{{url_for('static',filename='css/index.css')}}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+          integrity="SRI_HASH_HERE" crossorigin="anonymous">
+    <link rel="icon" type="image/png" href="{{url_for('static', filename = 'icon/logoforproject.png')}}">
+    {% endblock %}
+    {% if title %}
+    <title>{{ title }}</title>
+    {% else %}
+    <title>Добро пожаловать</title>
+    {% endif %}
+</head>
+<body>
+<header class="header"> {% include 'index/_header.html'%}</header>
+<div class='page'>
 
-        <main class = "content">
-            {% include 'index/_flash.html'%}
-            {% block content %}{% endblock %}
-        </main>
-        <footer class = "footer"> {% include 'index/_footer.html'%} </footer>
-        </div>
+    <main class="content">
+        {% include 'index/_flash.html'%}
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="footer"> {% include 'index/_footer.html'%}</footer>
+</div>
 
 
-        {% block scripts %}
-            {{ bootstrap.load_js() }}
-        {% endblock %}
-    </body>
+{% block scripts %}
+{{ bootstrap.load_js() }}
+{% endblock %}
+</body>
 </html>

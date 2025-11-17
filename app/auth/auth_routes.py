@@ -4,7 +4,7 @@ import psycopg2
 from psycopg2 import DatabaseError, IntegrityError
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for
+    Blueprint, flash, redirect, render_template, request, url_for
 )
 
 from app.auth.reset_password import generate_password_reset_token, send_password_reset_email, \
@@ -14,10 +14,11 @@ from app.forms.reset_password_form import ResetPasswordForm
 from app.forms.reset_request_form import RequestResetForm
 from app.user import User
 from db.db import get_db
-from flask_login import LoginManager, current_user, login_user, logout_user, login_required
+from flask_login import current_user, login_user, logout_user, login_required
 from app.forms.login_form import LoginForm
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
+
 
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
@@ -37,7 +38,7 @@ def register():
                     (regform.username.data, hashed_password, regform.email.data, regform.birthday_date.data)
                 )
                 db.commit()
-        except psycopg2.IntegrityError as e:
+        except (IntegrityError, DatabaseError):
             db.rollback()
             flash('Произошла ошибка при регистрации', 'danger')
             return render_template('auth/registration.html', title='Регистрация', form=regform)
@@ -58,20 +59,29 @@ def login():
             with db.cursor() as cursor:
                 cursor.execute(
                     """
-                    SELECT user_id, username, password, role, email, birthday_date, date_of_registr, is_banned
+                    SELECT user_id,
+                           username,
+                           password,
+                           role,
+                           email,
+                           birthday_date,
+                           date_of_registr,
+                           is_banned
                     FROM user_of_app
                     WHERE username = %s
                     """,
                     (loginform.username.data,)
                 )
                 data = cursor.fetchone()
-        except DatabaseError:
+        except (DatabaseError, IntegrityError):
             flash('Ошибка сервера, попробуйте позже', 'danger')
             return render_template('auth/login.html', title='Вход', form=loginform)
         if data is None or not check_password_hash(data['password'], loginform.password.data):
             flash(f'Неудачная попытка, попробуйте еще раз', 'danger')
             return render_template('auth/login.html', title='Вход', form=loginform)
-        user_id, username, password, role, email, birthday_date, date_of_registr, is_banned = data['user_id'], data['username'], data['password'], data['role'], data['email'], data['birthday_date'], data['date_of_registr'], data['is_banned']
+        user_id, username, password, role, email, birthday_date, date_of_registr, is_banned = data['user_id'], data[
+            'username'], data['password'], data['role'], data['email'], data['birthday_date'], data['date_of_registr'], \
+        data['is_banned']
         if is_banned:
             flash("Ваша учетная запись заблокирована", 'danger')
             return render_template('auth/login.html', title='Вход', form=loginform)
@@ -92,7 +102,8 @@ def logout():
     flash('Вы вышли из системы', 'success')
     return redirect(url_for('index.index'))
 
-@bp.route('/reset_password_request', methods = ['GET', 'POST'])
+
+@bp.route('/reset_password_request', methods=['GET', 'POST'])
 def reset_password_request():
     form = RequestResetForm()
     if form.validate_on_submit():
@@ -100,7 +111,9 @@ def reset_password_request():
         with db.cursor() as cursor:
             cursor.execute(
                 """
-                SELECT user_id FROM user_of_app WHERE email = %s
+                SELECT user_id
+                FROM user_of_app
+                WHERE email = %s
                 """,
                 (form.email.data,)
             )
@@ -114,7 +127,8 @@ def reset_password_request():
         return redirect(url_for('auth.login'))
     return render_template('auth/reset_password_request.html', form=form)
 
-@bp.route('/reset_password_with_token/<token>', methods = ['GET', 'POST'])
+
+@bp.route('/reset_password_with_token/<token>', methods=['GET', 'POST'])
 def reset_password(token):
     user_id = verify_password_reset_token(token)
     if user_id is None:
@@ -137,12 +151,9 @@ def reset_password(token):
                 db.commit()
         except (IntegrityError, DatabaseError):
             db.rollback()
-            flash("При смене пароля произошла ошибка",'danger')
-            return render_template('auth/reset_password_with_token.html', form = form)
+            flash("При смене пароля произошла ошибка", 'danger')
+            return render_template('auth/reset_password_with_token.html', form=form)
 
-        flash("Пароль был успешно изменен,можете авторизироваться",'success')
+        flash("Пароль был успешно изменен,можете авторизироваться", 'success')
         return redirect(url_for('auth.login'))
-    return render_template("auth/reset_password_with_token.html", form = form)
-
-
-
+    return render_template("auth/reset_password_with_token.html", form=form)

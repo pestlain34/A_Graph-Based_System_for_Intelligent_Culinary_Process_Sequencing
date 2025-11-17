@@ -1,13 +1,16 @@
 from flask import Blueprint, render_template
 
-bp = Blueprint('errors', __name__,url_prefix = '/errors')
+bp = Blueprint('errors', __name__, url_prefix='/errors')
+
 
 @bp.app_errorhandler(404)
 def error_404(error):
     return render_template('errors/error404.html'), 404
 
+
 def error_403(error):
     return render_template('errors/error403.html'), 403
+
 
 def error_500(error):
     return render_template('errors/error500.html'), 500

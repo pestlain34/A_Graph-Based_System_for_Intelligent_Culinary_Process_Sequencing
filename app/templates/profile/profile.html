@@ -11,5 +11,5 @@
 <p><strong>Дата регистрации пользователя:</strong> {{current_user.date_of_registr}}</p>
 <h2>Изменить данные</h2>
 {{ render_form(form, method="POST", action="") }}
-<a href = "{{url_for('profile.update_profile_picture')}}" class="btn btn-primary btn-sm mt-3">Сменить фото профиля</a>
+<a href="{{url_for('profile.update_profile_picture')}}" class="btn btn-primary btn-sm mt-3">Сменить фото профиля</a>
 {% endblock %}

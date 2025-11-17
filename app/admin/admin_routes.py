@@ -1,7 +1,7 @@
 from functools import wraps
 from urllib.parse import urlsplit
 
-from flask import render_template, request, url_for, redirect, flash, abort, Blueprint, current_app
+from flask import render_template, request, url_for, redirect, flash, Blueprint, current_app
 from flask_login import current_user
 from psycopg2 import DatabaseError, IntegrityError
 
@@ -15,7 +15,8 @@ from app.forms.unban_user_form import Unban_User_Form
 from app.my_recipes.utils import delete_file
 from db.db import get_db
 
-bp = Blueprint("admin", __name__, url_prefix = "/admin")
+bp = Blueprint("admin", __name__, url_prefix="/admin")
+
 
 def admin_required(func):
     @wraps(func)
@@ -24,12 +25,15 @@ def admin_required(func):
             flash("У вас нет прав доступа к этой странице", 'danger')
             return redirect(url_for('index.index'))
         return func(*args, **kwargs)
+
     return wrapper
+
 
 @bp.route("/")
 @admin_required
 def main_admin_page():
     return render_template("admin/main_admin_page.html")
+
 
 @bp.route("/work_with_users")
 @admin_required
@@ -39,7 +43,9 @@ def work_with_users():
         with db.cursor() as cursor:
             cursor.execute(
                 """
-                SELECT user_id, username, date_of_registr, birthday_date, email, role, is_banned FROM user_of_app ORDER BY user_id
+                SELECT user_id, username, date_of_registr, birthday_date, email, role, is_banned
+                FROM user_of_app
+                ORDER BY user_id
                 """
             )
             users_data = cursor.fetchall()
@@ -51,7 +57,9 @@ def work_with_users():
     ban_form = Ban_User_Form()
     give_admin_form = Give_Admin()
     unban_form = Unban_User_Form()
-    return render_template("admin/work_with_users.html", users_data=users_data, ban_form=ban_form, give_admin_form=give_admin_form, unban_form=unban_form)
+    return render_template("admin/work_with_users.html", users_data=users_data, ban_form=ban_form,
+                           give_admin_form=give_admin_form, unban_form=unban_form)
+
 
 @bp.route("/look_profile/<int:user_id>")
 @admin_required
@@ -61,7 +69,9 @@ def look_profile(user_id):
         with db.cursor() as cursor:
             cursor.execute(
                 """
-                SELECT username, email, birthday_date, date_of_registr FROM user_of_app WHERE user_id = %s
+                SELECT username, email, birthday_date, date_of_registr
+                FROM user_of_app
+                WHERE user_id = %s
                 """,
                 (user_id,)
             )
@@ -73,7 +83,8 @@ def look_profile(user_id):
 
     return render_template("admin/look_profile.html", user_data=user_data)
 
-@bp.route("/give_admin/<int:user_id>", methods = ['POST'])
+
+@bp.route("/give_admin/<int:user_id>", methods=['POST'])
 @admin_required
 def give_admin(user_id):
     db = get_db()
@@ -81,7 +92,7 @@ def give_admin(user_id):
         with db.cursor() as cursor:
             cursor.execute(
                 """
-                SELECT username , role
+                SELECT username, role
                 FROM user_of_app
                 WHERE user_id = %s
                 """,
@@ -94,29 +105,34 @@ def give_admin(user_id):
         with db.cursor() as cursor:
             cursor.execute(
                 """
-                UPDATE user_of_app SET role = %s WHERE user_id = %s
+                UPDATE user_of_app
+                SET role = %s
+                WHERE user_id = %s
                 """,
                 ("admin", user_id,)
             )
         db.commit()
         flash(f'Юзеру {user_role['username']} были успешно выданы права администратора', 'success')
     except (DatabaseError, IntegrityError):
-        flash("Ошибка при выдаче прав админа пользователю",'danger')
+        flash("Ошибка при выдаче прав админа пользователю", 'danger')
         return redirect(url_for('admin.work_with_users'))
     return redirect(url_for('admin.work_with_users'))
 
-@bp.route("/ban_user/<int:user_id>", methods = ['POST'])
+
+@bp.route("/ban_user/<int:user_id>", methods=['POST'])
 @admin_required
 def ban_user(user_id):
     if user_id == current_user.id:
-        flash("Вы не можете забанить самого себя",'danger')
+        flash("Вы не можете забанить самого себя", 'danger')
         return redirect(url_for('admin.work_with_users'))
     db = get_db()
     try:
         with db.cursor() as cursor:
             cursor.execute(
                 """
-                SELECT username , role FROM user_of_app WHERE user_id = %s
+                SELECT username, role
+                FROM user_of_app
+                WHERE user_id = %s
                 """,
                 (user_id,)
             )
@@ -131,19 +147,22 @@ def ban_user(user_id):
         with db.cursor() as cursor:
             cursor.execute(
                 """
-                UPDATE user_of_app SET is_banned = TRUE WHERE user_id = %s
+                UPDATE user_of_app
+                SET is_banned = TRUE
+                WHERE user_id = %s
                 """,
                 (user_id,)
             )
         db.commit()
-        flash(f'Пользователь {user_role_data['username']} успешно забанен','success')
+        flash(f'Пользователь {user_role_data['username']} успешно забанен', 'success')
     except (DatabaseError, IntegrityError):
         flash("Ошибка при блокировке пользователя", 'danger')
         return redirect(url_for('admin.work_with_users'))
 
     return redirect(url_for('admin.work_with_users'))
 
-@bp.route("/unban_user/<int:user_id>", methods = ['POST'])
+
+@bp.route("/unban_user/<int:user_id>", methods=['POST'])
 @admin_required
 def unban_user(user_id):
     db = get_db()
@@ -151,7 +170,9 @@ def unban_user(user_id):
         with db.cursor() as cursor:
             cursor.execute(
                 """
-                SELECT username, role FROM user_of_app WHERE user_id = %s
+                SELECT username, role
+                FROM user_of_app
+                WHERE user_id = %s
                 """,
                 (user_id,)
             )
@@ -163,17 +184,20 @@ def unban_user(user_id):
         with db.cursor() as cursor:
             cursor.execute(
                 """
-                UPDATE user_of_app SET is_banned = FALSE WHERE user_id = %s
+                UPDATE user_of_app
+                SET is_banned = FALSE
+                WHERE user_id = %s
                 """,
                 (user_id,)
             )
         db.commit()
-        flash(f'Пользователь {user_role_data['username']} успешно разбанен','success')
+        flash(f'Пользователь {user_role_data['username']} успешно разбанен', 'success')
     except (DatabaseError, IntegrityError):
         flash("Ошибка при разблокировке пользователя", 'danger')
         return redirect(url_for('admin.work_with_users'))
 
     return redirect(url_for('admin.work_with_users'))
+
 
 @bp.route("/work_with_category")
 @admin_required
@@ -183,7 +207,9 @@ def work_with_category():
         with db.cursor() as cursor:
             cursor.execute(
                 """
-                SELECT category_id, name, description FROM category ORDER BY category_id
+                SELECT category_id, name, description
+                FROM category
+                ORDER BY category_id
                 """
             )
             category_data = cursor.fetchall()
@@ -192,9 +218,11 @@ def work_with_category():
         return redirect(url_for('admin.main_admin_page'))
     add_form = AddCategoryForm()
     delete_form = DeleteForm()
-    return render_template("admin/work_with_category.html", category_data=category_data, add_form=add_form, delete_form=delete_form)
+    return render_template("admin/work_with_category.html", category_data=category_data, add_form=add_form,
+                           delete_form=delete_form)
 
-@bp.route("/add_category", methods = ['GET','POST'])
+
+@bp.route("/add_category", methods=['GET', 'POST'])
 @admin_required
 def add_category():
     form = AddCategoryForm()
@@ -204,7 +232,8 @@ def add_category():
             with db.cursor() as cursor:
                 cursor.execute(
                     """
-                    INSERT INTO category (name, description) VALUES (%s, %s)
+                    INSERT INTO category (name, description)
+                    VALUES (%s, %s)
                     """,
                     (form.name.data, form.description.data)
                 )
@@ -212,13 +241,14 @@ def add_category():
 
         except (DatabaseError, IntegrityError):
             db.rollback()
-            flash("Ошибка при добавлении новой категории",'danger')
+            flash("Ошибка при добавлении новой категории", 'danger')
             return redirect(url_for('admin.work_with_category'))
-        flash("Категория успешно добавлена",'success')
+        flash("Категория успешно добавлена", 'success')
         return redirect(url_for('admin.work_with_category'))
     return render_template('admin/add_category.html', form=form)
 
-@bp.route("/delete_category/<int:category_id>", methods = ['POST'])
+
+@bp.route("/delete_category/<int:category_id>", methods=['POST'])
 @admin_required
 def delete_category(category_id):
     db = get_db()
@@ -226,7 +256,9 @@ def delete_category(category_id):
         with db.cursor() as cursor:
             cursor.execute(
                 """
-                DELETE FROM category WHERE category_id = %s
+                DELETE
+                FROM category
+                WHERE category_id = %s
                 """,
                 (category_id,)
             )
@@ -238,7 +270,8 @@ def delete_category(category_id):
     flash("Произошло успешное удаление категории", 'success')
     return redirect(url_for('admin.work_with_category'))
 
-@bp.route("/delete_recipe/<int:recipe_id>", methods = ['POST'])
+
+@bp.route("/delete_recipe/<int:recipe_id>", methods=['POST'])
 @admin_required
 def delete_recipe(recipe_id):
     db = get_db()
@@ -246,7 +279,9 @@ def delete_recipe(recipe_id):
         with db.cursor() as cursor:
             cursor.execute(
                 """
-                SELECT image FROM recipe WHERE recipe_id = %s
+                SELECT image
+                FROM recipe
+                WHERE recipe_id = %s
                 """,
                 (recipe_id,)
             )
@@ -256,24 +291,27 @@ def delete_recipe(recipe_id):
         with db.cursor() as cursor:
             cursor.execute(
                 """
-                DELETE FROM recipe WHERE recipe_id = %s
+                DELETE
+                FROM recipe
+                WHERE recipe_id = %s
                 """,
                 (recipe_id,)
             )
         db.commit()
 
     except (DatabaseError, IntegrityError):
-        flash("Ошибка при удалении рецепта",'danger')
+        flash("Ошибка при удалении рецепта", 'danger')
         next = request.args.get('next')
         if not next or urlsplit(next).netloc != '':
             next = url_for('index.index')
         return redirect(next)
 
-    flash("Успешное удаление рецепта",'success')
+    flash("Успешное удаление рецепта", 'success')
     next = request.args.get('next')
     if not next or urlsplit(next).netloc != '':
         next = url_for('index.index')
     return redirect(next)
+
 
 @bp.route("/work_with_recipes")
 @admin_required
@@ -283,7 +321,8 @@ def work_with_recipes():
         with db.cursor() as cursor:
             cursor.execute(
                 """
-                SELECT recipe_id, creation_date, difficulty, title, description, status_of_recipe FROM recipe
+                SELECT recipe_id, creation_date, difficulty, title, description, status_of_recipe
+                FROM recipe
                 """
             )
             recipes_data = cursor.fetchall()
@@ -293,6 +332,7 @@ def work_with_recipes():
     delete_form = DeleteForm()
     return render_template("admin/work_with_recipes.html", recipes_data=recipes_data, delete_form=delete_form)
 
+
 @bp.route("/work_with_publications")
 @admin_required
 def work_with_publications():
@@ -301,20 +341,25 @@ def work_with_publications():
         with db.cursor() as cursor:
             cursor.execute(
                 """
-                SELECT recipe_id, creation_date, difficulty, title, description, status_of_recipe FROM recipe WHERE status_of_recipe = %s ORDER BY recipe_id
+                SELECT recipe_id, creation_date, difficulty, title, description, status_of_recipe
+                FROM recipe
+                WHERE status_of_recipe = %s
+                ORDER BY recipe_id
                 """,
                 ("under_consideration",)
             )
             wait_to_be_publicated = cursor.fetchall()
 
     except (DatabaseError, IntegrityError):
-        flash("Ошибка при получении рецептов на рассмотрении",'danger')
+        flash("Ошибка при получении рецептов на рассмотрении", 'danger')
         return redirect(url_for('admin.main_admin_page'))
     approve_form = ApproveForm()
     reject_form = RejectForm()
-    return render_template("admin/work_with_publications.html", wait_to_be_publicated=wait_to_be_publicated, approve_form=approve_form, reject_form=reject_form)
+    return render_template("admin/work_with_publications.html", wait_to_be_publicated=wait_to_be_publicated,
+                           approve_form=approve_form, reject_form=reject_form)
 
-@bp.route("/approve_recipe/<int:recipe_id>", methods = ['POST'])
+
+@bp.route("/approve_recipe/<int:recipe_id>", methods=['POST'])
 @admin_required
 def approve_recipe(recipe_id):
     db = get_db()
@@ -330,12 +375,13 @@ def approve_recipe(recipe_id):
             )
         db.commit()
     except (DatabaseError, IntegrityError):
-        flash("Ошиюка при одобрении рецепта на публикацию",'danger')
+        flash("Ошиюка при одобрении рецепта на публикацию", 'danger')
         return redirect(url_for('admin.work_with_publications'))
     flash("Поздравляем, вы успешно одобрили на публикацию рецепт", 'success')
     return redirect(url_for('admin.work_with_publications'))
 
-@bp.route("/reject_recipe/<int:recipe_id>", methods = ['POST'])
+
+@bp.route("/reject_recipe/<int:recipe_id>", methods=['POST'])
 @admin_required
 def reject_recipe(recipe_id):
     db = get_db()
@@ -355,4 +401,3 @@ def reject_recipe(recipe_id):
         return redirect(url_for('admin.work_with_publications'))
     flash("Поздравляем, вы успешно отклонили на публикацию рецепт", 'success')
     return redirect(url_for('admin.work_with_publications'))
-

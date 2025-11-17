@@ -1,9 +1,11 @@
-import psycopg
 from flask_login import UserMixin
 from db.db import get_db
 from app import login_manager
+
+
 class User(UserMixin):
-    def __init__(self, id, username , password, image, image_mime, image_filename, role= None, email= None, birthday_date= None,date_of_registr=None,is_banned=False):
+    def __init__(self, id, username, password, image, image_mime, image_filename, role=None, email=None,
+                 birthday_date=None, date_of_registr=None, is_banned=False):
         self.id = id
         self.username = username
         self.password = password
@@ -16,13 +18,26 @@ class User(UserMixin):
         self.image_mime = image_mime
         self.image_filename = image_filename
 
+
 @login_manager.user_loader
 def load_user(user_id):
     db = get_db()
     with db.cursor() as cursor:
         cursor.execute(
             """
-            SELECT user_id, username, password, role, email , birthday_date,date_of_registr,is_banned, image, image_mime, image_filename FROM user_of_app WHERE user_id = %s
+            SELECT user_id,
+                   username,
+                   password,
+                   role,
+                   email,
+                   birthday_date,
+                   date_of_registr,
+                   is_banned,
+                   image,
+                   image_mime,
+                   image_filename
+            FROM user_of_app
+            WHERE user_id = %s
             """,
             (user_id,)
         )
@@ -42,8 +57,3 @@ def load_user(user_id):
         date_of_registr=row['date_of_registr'],
         is_banned=row['is_banned'],
     )
-
-
-
-
-

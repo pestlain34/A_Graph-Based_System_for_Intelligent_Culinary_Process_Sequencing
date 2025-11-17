@@ -5,7 +5,6 @@ from flask_login import current_user, logout_user
 from psycopg2 import IntegrityError, DatabaseError
 
 from db.db import get_db
-from instance.config import basedir
 from .extensions import login_manager, bootstrap, mail
 from db import db
 from . import auth
@@ -22,8 +21,6 @@ def env_bool(name):
     if name == "True":
         return True
     return False
-
-
 
 
 load_dotenv()
@@ -116,6 +113,5 @@ def create_app(test_config=None):
                     logout_user()
                     flash("Ваша учётная запись была заблокирована", 'danger')
                     return redirect(url_for('auth.login'))
-
 
     return app

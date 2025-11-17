@@ -7,8 +7,8 @@
     <li class="list-group-item mb-3">
         <div class="d-flex justify-content-between align-items-center gap-3">
             <img src="{{ url_for('static', filename=recipe['image']) }}"
-             class="img-thumbnail"
-             style="width:220px; height:150px; object-fit:cover;">
+                 class="img-thumbnail"
+                 style="width:220px; height:150px; object-fit:cover;">
             <div class="flex-grow-1" style="min-width: 0;">
                 <a href="{{ url_for('my_recipes.view_recipe', recipe_id=recipe['recipe_id']) }}">
                     <strong>{{ recipe['title'] }}</strong>
@@ -24,7 +24,7 @@
                     {{ delete_form.csrf_token }}
                     <button type="submit" class="btn btn-sm btn-danger"><span class="fa fa-trash"></span></button>
                 </form>
-                {% if recipe['status_of_recipe']  not in ['publicated', 'under_consideration'] %}
+                {% if recipe['status_of_recipe'] not in ['publicated', 'under_consideration'] %}
                 <form method="post"
                       action="{{url_for('my_recipes.publicate_recipe', recipe_id = recipe['recipe_id'])}}">
                     {{publicate_form.csrf_token }}

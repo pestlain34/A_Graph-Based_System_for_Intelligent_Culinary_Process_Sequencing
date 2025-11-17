@@ -1,9 +1,8 @@
 import os
 from uuid import uuid4
 
-import psycopg2
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for, current_app
+    Blueprint, flash, redirect, render_template, request, url_for, current_app
 )
 from flask_login import login_required, current_user
 from psycopg import DatabaseError, IntegrityError
@@ -14,9 +13,10 @@ from app.forms.update_user_profile_form import UpdateUserForm
 from app.profile.utils import delete_file
 from db.db import get_db
 
-bp = Blueprint('profile', __name__, url_prefix = '/profile')
+bp = Blueprint('profile', __name__, url_prefix='/profile')
 
-@bp.route('/profile', methods = ['GET', 'POST'])
+
+@bp.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
     form = UpdateUserForm()
@@ -32,26 +32,29 @@ def profile():
                     cursor.execute(
                         """
                         UPDATE user_of_app
-                        SET username = %s, email = %s, birthday_date = %s
+                        SET username      = %s,
+                            email         = %s,
+                            birthday_date = %s
                         WHERE user_id = %s
                         """,
                         (form.username.data, form.email.data, form.birthday_date.data, current_user.id)
                     )
                     db.commit()
-            except (DatabaseError,IntegrityError):
+            except (DatabaseError, IntegrityError):
                 db.rollback()
                 flash("Произошла ошибка сохранения данных пользователя", 'danger')
-                return render_template("profile/profile.html", form = form, current_user = current_user)
+                return render_template("profile/profile.html", form=form, current_user=current_user)
 
             current_user.username = form.username.data
             current_user.email = form.email.data
             current_user.birthday_date = form.birthday_date.data
 
-            flash("Изменение данных профиля прошло успешно",'success')
+            flash("Изменение данных профиля прошло успешно", 'success')
             return redirect(url_for('profile.profile'))
-    return render_template("profile/profile.html", form = form, current_user = current_user)
+    return render_template("profile/profile.html", form=form, current_user=current_user)
 
-@bp.route('/update_profile_picture', methods = ['GET', 'POST'])
+
+@bp.route('/update_profile_picture', methods=['GET', 'POST'])
 @login_required
 def update_profile_picture():
     form = UpdatePictureForm()
@@ -73,20 +76,26 @@ def update_profile_picture():
             with db.cursor() as cursor:
                 cursor.execute(
                     """
-                    SELECT image FROM user_of_app WHERE user_id = %s
+                    SELECT image
+                    FROM user_of_app
+                    WHERE user_id = %s
                     """,
                     (current_user.id,)
                 )
                 data_of_user = cursor.fetchone()
 
             curimage = data_of_user['image']
-            imgg = os.path.join('image/profile_photo', unique).replace('\\','/')
+            imgg = os.path.join('image/profile_photo', unique).replace('\\', '/')
             mimee = f.mimetype
 
             with db.cursor() as cursor:
                 cursor.execute(
                     """
-                    UPDATE user_of_app SET image = %s, image_mime = %s, image_filename = %s WHERE user_id = %s
+                    UPDATE user_of_app
+                    SET image          = %s,
+                        image_mime     = %s,
+                        image_filename = %s
+                    WHERE user_id = %s
                     """,
                     (imgg, mimee, filename, current_user.id)
                 )
@@ -98,7 +107,7 @@ def update_profile_picture():
             current_user.image_mime = mimee
             current_user.image_filename = filename
 
-        except (DatabaseError,IntegrityError):
+        except (DatabaseError, IntegrityError):
             db.rollback()
             flash("Ошибка, при смене фото профиля", 'danger')
             return redirect(url_for('profile.profile'))
@@ -108,6 +117,3 @@ def update_profile_picture():
         f.save(dest)
         return redirect(url_for('profile.profile'))
     return render_template('profile/update_picture.html', form=form)
-
-
-

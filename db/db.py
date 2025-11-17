@@ -4,6 +4,7 @@ from flask import current_app, g
 import click
 import os
 
+
 def get_db():
     if "db" not in g:
         g.db = psycopg2.connect(
@@ -12,15 +13,18 @@ def get_db():
         )
     return g.db
 
-def close_db(e = None):
+
+def close_db(e=None):
     db = g.pop("db", None)
     if db is not None:
         db.close()
+
 
 try:
     import sqlparse
 except Exception:
     sqlparse = None
+
 
 def init_db():
     db = get_db()
@@ -45,10 +49,12 @@ def init_db():
         db.rollback()
         raise
 
+
 @click.command('init-db')
 def init_db_command():
     init_db()
     click.echo('Initialized the database.')
+
 
 def init_app(app):
     app.teardown_appcontext(close_db)

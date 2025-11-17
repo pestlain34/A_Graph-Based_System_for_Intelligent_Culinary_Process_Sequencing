@@ -2,6 +2,7 @@ import heapq
 from collections import deque, defaultdict
 from typing import List
 
+
 class Step:
     def __init__(self, id, name, time, active=True, prev=None):
         self.id = id
@@ -148,7 +149,6 @@ def schedule_improved(steps: List[Step]):
 
     plan.sort(key=lambda x: x["start"])
     return plan
-
 
 # if __name__ == "__main__":
 #     step_spaghetti1 = Step(1, "boil water", 10, active=False)
