@@ -113,7 +113,7 @@
           <mxGeometry height="24" width="140" y="56" as="geometry" />
         </mxCell>
         <mxCell id="j7Ol4mqIs3Lq_aQkKI8t-36" parent="1" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=14;" value="Рецепт - Ингредиент" vertex="1">
-          <mxGeometry height="130" width="180" x="1140" y="703.91" as="geometry" />
+          <mxGeometry height="156" width="180" x="1140" y="703.91" as="geometry" />
         </mxCell>
         <mxCell id="j7Ol4mqIs3Lq_aQkKI8t-37" parent="j7Ol4mqIs3Lq_aQkKI8t-36" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" value="id_рецепта" vertex="1">
           <mxGeometry height="26" width="180" y="26" as="geometry" />
@@ -126,6 +126,9 @@
         </mxCell>
         <mxCell id="jNRmalB5-kACDv1CsSnk-2" parent="j7Ol4mqIs3Lq_aQkKI8t-36" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" value="*id_записи" vertex="1">
           <mxGeometry height="26" width="180" y="104" as="geometry" />
+        </mxCell>
+        <mxCell id="Mg2_pe_RsMQ9ePfFiSJW-1" parent="j7Ol4mqIs3Lq_aQkKI8t-36" style="text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;" value="Единица измерения" vertex="1">
+          <mxGeometry height="26" width="180" y="130" as="geometry" />
         </mxCell>
         <mxCell id="j7Ol4mqIs3Lq_aQkKI8t-40" edge="1" parent="1" source="j7Ol4mqIs3Lq_aQkKI8t-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="j7Ol4mqIs3Lq_aQkKI8t-2">
           <mxGeometry relative="1" as="geometry">
