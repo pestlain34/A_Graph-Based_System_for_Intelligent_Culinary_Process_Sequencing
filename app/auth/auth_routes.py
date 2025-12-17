@@ -66,7 +66,10 @@ def login():
                            email,
                            birthday_date,
                            date_of_registr,
-                           is_banned
+                           is_banned,
+                           image,
+                           image_mime,
+                           image_filename
                     FROM user_of_app
                     WHERE username = %s
                     """,
@@ -79,13 +82,13 @@ def login():
         if data is None or not check_password_hash(data['password'], loginform.password.data):
             flash(f'Неудачная попытка, попробуйте еще раз', 'danger')
             return render_template('auth/login.html', title='Вход', form=loginform)
-        user_id, username, password, role, email, birthday_date, date_of_registr, is_banned = data['user_id'], data[
+        user_id, username, password, role, email, birthday_date, date_of_registr, is_banned, image, image_mime, image_filename = data['user_id'], data[
             'username'], data['password'], data['role'], data['email'], data['birthday_date'], data['date_of_registr'], \
-        data['is_banned']
+        data['is_banned'], data['image'], data['image_mime'], data['image_filename']
         if is_banned:
             flash("Ваша учетная запись заблокирована", 'danger')
             return render_template('auth/login.html', title='Вход', form=loginform)
-        user = User(user_id, username, password, role)
+        user = User(user_id, username, password, role, email, birthday_date, date_of_registr, is_banned, image, image_mime, image_filename)
         login_user(user, remember=loginform.remember_me.data)
         flash(f'Поздравляем, {user.username}, вы успешно вошли в систему', 'success')
         next = request.args.get('next')

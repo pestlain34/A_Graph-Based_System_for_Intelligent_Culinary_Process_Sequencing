@@ -80,7 +80,7 @@ def create_app(test_config=None):
         tmp = session.get('image')
         if not tmp:
             return
-        if request.endpoint in ('static', 'werkzeug.debugger', 'my_recipes.create_recipe', 'my_recipes.create_step'):
+        if request.endpoint in ('static', 'werkzeug.debugger', 'my_recipes.create_recipe', 'my_recipes.create_step', 'my_recipes.add_ingredient_in_recipe'):
             return
         delete_file(current_app.static_folder, tmp)
         session.pop('steps', None)

@@ -5,12 +5,13 @@ from PIL import UnidentifiedImageError
 from PIL import Image
 from flask_wtf import FlaskForm
 from werkzeug.utils import secure_filename
-from wtforms import StringField, validators, SubmitField, TextAreaField
+from wtforms import StringField, validators, SubmitField, TextAreaField, IntegerField, FormField, FieldList, Form
 from wtforms.fields.choices import SelectField
 from wtforms.validators import ValidationError
 from flask_wtf.file import FileAllowed, FileRequired, FileField
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+
 
 
 class Main_data_of_recipe_form(FlaskForm):
@@ -29,6 +30,7 @@ class Main_data_of_recipe_form(FlaskForm):
     ], validators=[validators.DataRequired(message="Выберите сложность рецепта")])
     image = FileField('Фото блюда',
                       validators=[FileRequired(), FileAllowed(list(ALLOWED_EXTENSIONS), 'Только изображения')])
+
     go_next = SubmitField('Далее')
 
     def validate_image(self, field):

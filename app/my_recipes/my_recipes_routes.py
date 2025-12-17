@@ -3,7 +3,7 @@ from collections import defaultdict
 from uuid import uuid4
 
 import psycopg2
-from flask import Blueprint, render_template, redirect, url_for, flash, session, current_app
+from flask import Blueprint, render_template, redirect, url_for, flash, session, current_app, request
 from flask_login import login_required, current_user
 from psycopg2 import IntegrityError, DatabaseError
 from werkzeug.utils import secure_filename
@@ -11,6 +11,7 @@ from werkzeug.utils import secure_filename
 from app.forms.add_to_planner_form import AddToPlannerForm
 from app.forms.create_step import CreateStep_form
 from app.forms.delete_form import DeleteForm
+from app.forms.ingredients_form import IngredientForm
 from app.forms.main_data_of_recipe import Main_data_of_recipe_form
 from app.forms.publicate_form import PublicateForm
 from app.my_recipes.utils import save_temp_file, temp_to_permanent, delete_file
@@ -69,12 +70,15 @@ def create_recipe():
                 """
             )
             rows = cursor.fetchall()
+
+
     except (DatabaseError, IntegrityError):
         flash("Ошибка при создании рецепта", 'danger')
         return render_template('my_recipes/create_recipe.html', form=form)
 
-    choices = [(row['recipe_type_id'], row['recipe_type_name']) for row in rows]
-    form.recipe_type.choices = choices
+
+    form.recipe_type.choices = [(row['recipe_type_id'], row['recipe_type_name']) for row in rows]
+
     if form.validate_on_submit():
         session['recipe_data'] = {
             'title': form.title.data,
@@ -94,10 +98,52 @@ def create_recipe():
             session['image_mime'] = f.mimetype
             session['image_filename'] = secure_filename(f.filename or '')
         session['steps'] = []
+        session['ingredients'] = []
         session['creating_recipe'] = True
-        return redirect(url_for('my_recipes.create_step'))
-
+        return redirect(url_for('my_recipes.add_ingredient_in_recipe'))
     return render_template('my_recipes/create_recipe.html', form=form)
+
+@bp.route('/add_ingredient_in_recipe', methods=['GET', 'POST'])
+@login_required
+def add_ingredient_in_recipe():
+    if 'ingredients' not in session:
+        session['ingredients'] = []
+    if 'recipe_data' not in session:
+        flash("Сначала вам нужно заполнить сведения о рецепте")
+        return redirect(url_for('my_recipes.create_recipe'))
+    form = IngredientForm()
+    db = get_db()
+    try:
+        with db.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT ingredient_id, name
+                FROM ingredient
+                ORDER BY name
+                """
+            ),
+            ingredients_row = cursor.fetchall()
+    except (DatabaseError, IntegrityError):
+        flash("Ошибка при добавлении ингредиента", 'danger')
+        return render_template('add_ingredient_in_recipe.html', form=form)
+
+    form.ingredient.choices = [(row['ingredient_id'], row['name']) for row in ingredients_row]
+    ingredients = session.get('ingredients', [])
+    if form.validate_on_submit():
+        ingredient_data = {
+            'quantity': form.amount.data,
+            'ingredient_id': form.ingredient.data,
+            'edin_izmer': form.edin_izmer.data
+        }
+        ingredients.append(ingredient_data)
+        session['ingredients'] = ingredients
+
+        if form.add_another_ingredient.data:
+            flash("Ингредиент добавлен", 'success')
+            return redirect(url_for("my_recipes.add_ingredient_in_recipe"))
+        if form.go_next.data:
+            return redirect(url_for('my_recipes.create_step'))
+    return render_template('my_recipes/add_ingredient_in_recipe.html', form=form)
 
 
 @bp.route('/create_step', methods=['GET', 'POST'])
@@ -130,6 +176,7 @@ def create_step():
             db = get_db()
             recipe_data = session.get('recipe_data', {})
             steps_data = session.get('steps', [])
+            ingredients_data = session.get('ingredients', [])
             temp_rel = session.get('image')
             if temp_rel:
                 perm_rel = temp_to_permanent(current_app.static_folder, temp_rel)
@@ -148,6 +195,15 @@ def create_step():
                     )
                     row = cursor.fetchone()
                     recipe_id = row['recipe_id']
+
+                    for ingredient in ingredients_data:
+                        cursor.execute(
+                            """
+                            INSERT INTO recipe_ingredient (quantity, ingredient_id, edin_izmer, recipe_id)
+                            VALUES (%s, %s, %s, %s)
+                            """,
+                            (ingredient['quantity'], ingredient['ingredient_id'], ingredient['edin_izmer'], recipe_id)
+                        )
 
                     index_to_dbid = {}
                     for idx, s in enumerate(steps_data):
@@ -182,6 +238,7 @@ def create_step():
 
             session.pop('steps', None)
             session.pop('recipe_data', None)
+            session.pop('ingredients', None)
             session.pop('image', None)
             session.pop('image_mime', None)
             session.pop('image_filename', None)
@@ -281,6 +338,12 @@ def delete_recipe(recipe_id):
                 DELETE
                 FROM recipe
                 WHERE recipe_id = %s
+                """,
+                (recipe_id,)
+            )
+            cursor.execute(
+                """
+                DELETE FROM recipe_ingredient WHERE recipe_id = %s
                 """,
                 (recipe_id,)
             )
