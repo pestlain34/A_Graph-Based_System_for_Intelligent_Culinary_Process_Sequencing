@@ -4,6 +4,17 @@
 <p>{{recipe.description}}</p>
 <p><strong>Сложность:</strong> {{recipe.difficulty or '-'}}</p>
 <p><strong>Общее время выполнения:</strong> {{total_time}} минут</p>
+<p><strong>Ингредиенты:</strong></p>
+<ul>
+    {% for ingredient in ingredients %}
+    <li>
+        {{ingredient.name}}
+        {{ingredient.quantity}}
+        {{ingredient.edin_izmer}}
+    </li>
+    {% endfor %}
+</ul>
+
 
 <h2>Этапы приготовления</h2>
 

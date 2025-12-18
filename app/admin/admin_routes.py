@@ -207,7 +207,7 @@ def work_with_category():
         with db.cursor() as cursor:
             cursor.execute(
                 """
-                SELECT category_id, name, description
+                SELECT category_id, name
                 FROM category
                 ORDER BY category_id
                 """
@@ -232,10 +232,10 @@ def add_category():
             with db.cursor() as cursor:
                 cursor.execute(
                     """
-                    INSERT INTO category (name, description)
-                    VALUES (%s, %s)
+                    INSERT INTO category (name)
+                    VALUES (%s)
                     """,
-                    (form.name.data, form.description.data)
+                    (form.name.data,)
                 )
             db.commit()
 

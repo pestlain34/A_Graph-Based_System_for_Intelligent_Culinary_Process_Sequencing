@@ -289,6 +289,17 @@ def view_recipe(recipe_id):
                 (recipe_id,)
             )
             deps = cursor.fetchall()
+            cursor.execute(
+                """
+                SELECT ri.ingredient_id, ri.quantity, ri.recipe_id, ri.edin_izmer, i.name
+                FROM recipe_ingredient AS ri
+                         JOIN ingredient AS i ON i.ingredient_id = ri.ingredient_id
+                WHERE ri.recipe_id = %s
+                """,
+                (recipe_id,)
+            )
+            ingredients_data = cursor.fetchall()
+
     except (DatabaseError, IntegrityError):
         db.rollback()
         flash("Ошибка сервера при загрузке рецепта", 'danger')
@@ -306,7 +317,7 @@ def view_recipe(recipe_id):
         step['prev_names'] = [id_to_name[previd] for previd in previd_list if previd in id_to_name]
 
     total_time = sum(s['duration'] for s in steps)
-    return render_template("recipe/view_recipe.html", recipe=recipe, steps=steps, total_time=total_time)
+    return render_template("recipe/view_recipe.html", recipe=recipe, steps=steps, total_time=total_time, ingredients= ingredients_data)
 
 
 @bp.route('/delete_recipe/<int:recipe_id>', methods=['POST'])

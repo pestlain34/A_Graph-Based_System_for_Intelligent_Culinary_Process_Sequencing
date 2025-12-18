@@ -9,7 +9,4 @@ class AddCategoryForm(FlaskForm):
                                                                            message="Длина должна быть в пределах [10,100]")],
                        render_kw={
                            "placeholder": "Например: Молочная продукция"})
-    description = TextAreaField('Описание категории',
-                                validators=[validators.DataRequired(message="Напишите описание категории")],
-                                render_kw={"placeholder": "Например:Все продукты, произведенные из молока"})
     submit = SubmitField("Добавить категорию")
