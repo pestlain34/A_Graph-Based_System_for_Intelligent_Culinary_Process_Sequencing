@@ -14,7 +14,7 @@ from . import errors
 from . import my_recipes
 from . import planner
 from . import admin
-from app.services.utils import delete_object_s3
+from app.services.utils import delete_object_s3, generate_s3_url
 
 
 def env_bool(name):
@@ -110,5 +110,20 @@ def create_app(test_config=None):
                     logout_user()
                     flash("Ваша учётная запись была заблокирована", 'danger')
                     return redirect(url_for('auth.login'))
+
+    def inject_logo_url():
+        try:
+            logo_url = generate_s3_url(
+                current_app.config['S3_BUCKET'],
+                'logoforproject.png',
+                expires_in=3600,
+                public=False
+            )
+        except Exception:
+            logo_url = None
+
+        return dict(logo_url=logo_url)
+
+    app.context_processor(inject_logo_url)
 
     return app

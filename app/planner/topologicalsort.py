@@ -150,17 +150,3 @@ def schedule_improved(steps: List[Step]):
     plan.sort(key=lambda x: x["start"])
     return plan
 
-# if __name__ == "__main__":
-#     step_spaghetti1 = Step(1, "boil water", 10, active=False)
-#     step_spaghetti2 = Step(2, "boil spaghetti", 8, active=False, prev=[step_spaghetti1])
-#     step_spaghetti3 = Step(3, "make a sauce", 5, active=True)
-#     step_bread1 = Step(4, "make testo", 15, active=True)
-#     step_bread2 = Step(5, "bake testo", 20, active=False, prev=[step_bread1])
-#     step_bread3 = Step(6, "make pirog", 15, active=True, prev=[step_bread2])
-#     steps = [step_spaghetti1, step_spaghetti2, step_spaghetti3, step_bread1, step_bread2, step_bread3]
-#
-#     plan = schedule_improved(steps)
-#     print("=== План ===")
-#     for p in plan:
-#         kind = p['type_of']
-#         print(f"[{p['start']:>3}–{p['end']:<3}] {kind:7} {p['name']}")
