@@ -30,6 +30,13 @@
             <td>{{recipe['status_of_recipe']}}</td>
             <td>
                 <div class="ms-auto d-flex align-items-center gap-1">
+                    <a href="{{ url_for('my_recipes.update_recipe', recipe_id=recipe['recipe_id']) }}"
+                       class="btn btn-sm btn-secondary"
+                       role="button"
+                       title="Редактировать рецепт"
+                       onclick="return confirm('Вы действительно хотите изменить рецепт?')">
+                        <span class="fa-regular fa-pen-to-square"></span>
+                    </a>
                     <form method="post"
                           action="{{url_for('admin.delete_recipe', recipe_id = recipe['recipe_id'], next = request.path)}}"
                           onsubmit="return confirm('Вы действительно хотите удалить рецепт?')">

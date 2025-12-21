@@ -6,7 +6,7 @@ from app.forms.delete_form import DeleteForm
 from flask import Blueprint, render_template, session, flash, current_app, request
 
 from app.forms.search_form import SearchForm
-from app.my_recipes.utils import delete_file
+from app.services.utils import generate_s3_url
 from db.db import get_db
 
 bp = Blueprint('index', __name__)
@@ -93,5 +93,9 @@ def index():
     except (DatabaseError, IntegrityError):
         flash("Ошибка при получении данных о рецептах из базы", 'danger')
         all_recipes = []
+    bucket = current_app.config['S3_BUCKET']
+    for recipe in all_recipes:
+        recipe['image_url'] = generate_s3_url(bucket, recipe['image'], expires_in=3600, public=False)
+
     return render_template('index/index.html', all_recipes=all_recipes, add_to_planner_form=add_to_planner_form,
                            delete_form=delete_form, search_form=search_form)

@@ -5,6 +5,7 @@ from flask import render_template, request, url_for, redirect, flash, Blueprint,
 from flask_login import current_user
 from psycopg2 import DatabaseError, IntegrityError
 
+from app.services.utils import delete_object_s3
 from app.forms.add_category_form import AddCategoryForm
 from app.forms.approve_form import ApproveForm
 from app.forms.ban_user_form import Ban_User_Form
@@ -12,7 +13,6 @@ from app.forms.delete_form import DeleteForm
 from app.forms.give_admin_form import Give_Admin
 from app.forms.reject_form import RejectForm
 from app.forms.unban_user_form import Unban_User_Form
-from app.my_recipes.utils import delete_file
 from db.db import get_db
 
 bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -286,8 +286,12 @@ def delete_recipe(recipe_id):
                 (recipe_id,)
             )
             row = cursor.fetchone()
-        relpath = row['image']
-        delete_file(current_app.static_folder, relpath)
+        if row:
+            relpath = row['image']
+            try:
+                delete_object_s3(current_app.config['S3_BUCKET'], relpath)
+            except Exception:
+                flash("Не нашло этот обьект в s3",'danger')
         with db.cursor() as cursor:
             cursor.execute(
                 """

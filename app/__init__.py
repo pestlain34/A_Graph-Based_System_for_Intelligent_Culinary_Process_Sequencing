@@ -14,7 +14,7 @@ from . import errors
 from . import my_recipes
 from . import planner
 from . import admin
-from .my_recipes.utils import delete_file
+from app.services.utils import delete_object_s3
 
 
 def env_bool(name):
@@ -27,7 +27,7 @@ load_dotenv()
 
 
 def create_app(test_config=None):
-    app = Flask(__name__, instance_relative_config=True)
+    app = Flask(__name__)
     app.config.from_mapping(
         SECRET_KEY="dev",
         DATABASE=(
@@ -44,20 +44,17 @@ def create_app(test_config=None):
         MAIL_PASSWORD=os.getenv('MAIL_PASSWORD'),
         MAIL_DEFAULT_SENDER=os.getenv('MAIL_DEFAULT_SENDER') or os.getenv('MAIL_USERNAME'),
         PASSWORD_RESET_TOKEN_EXPIRATION=int(os.getenv('PASSWORD_RESET_TOKEN_EXPIRATION', 3600)),
-        UPLOAD_FOLDER=os.path.join(app.root_path, 'static', 'image', 'recipes')
+        UPLOAD_FOLDER=os.path.join(app.root_path, 'static', 'image', 'recipes'),
+        AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID'),
+        AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY'),
+        AWS_REGION = os.getenv('AWS_REGION'),
+        S3_BUCKET = os.getenv('S3_BUCKET'),
+        S3_ENDPOINT = os.getenv('S3_ENDPOINT')
     )
 
-    if test_config is None:
-        app.config.from_pyfile('config.py', silent=True)
-
-    else:
+    if test_config:
         app.config.from_mapping(test_config)
 
-    try:
-        os.makedirs(app.instance_path)
-
-    except OSError:
-        pass
 
     db.init_app(app)
     login_manager.init_app(app)
@@ -82,7 +79,7 @@ def create_app(test_config=None):
             return
         if request.endpoint in ('static', 'werkzeug.debugger', 'my_recipes.create_recipe', 'my_recipes.create_step', 'my_recipes.add_ingredient_in_recipe'):
             return
-        delete_file(current_app.static_folder, tmp)
+        delete_object_s3(current_app.config['S3_BUCKET'], tmp)
         session.pop('steps', None)
         session.pop('recipe_data', None)
         session.pop('image', None)

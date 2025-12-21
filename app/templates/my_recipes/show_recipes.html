@@ -6,7 +6,7 @@
     {% for recipe in recipes %}
     <li class="list-group-item mb-3">
         <div class="d-flex justify-content-between align-items-center gap-3">
-            <img src="{{ url_for('static', filename=recipe['image']) }}"
+            <img src="{{ recipe['image_url']}}"
                  class="img-thumbnail"
                  style="width:220px; height:150px; object-fit:cover;">
             <div class="flex-grow-1" style="min-width: 0;">
@@ -18,6 +18,13 @@
 
             </div>
             <div class="ms-auto d-flex align-items-center gap-1">
+                <a href="{{ url_for('my_recipes.update_recipe', recipe_id=recipe['recipe_id']) }}"
+                   class="btn btn-sm btn-secondary"
+                   role="button"
+                   title="Редактировать рецепт"
+                   onclick="return confirm('Вы действительно хотите изменить рецепт?')">
+                    <span class="fa-regular fa-pen-to-square"></span>
+                </a>
                 <form method="post"
                       action="{{ url_for('my_recipes.delete_recipe', recipe_id=recipe['recipe_id']) }}"
                       onsubmit="return confirm('Вы действительно хотите удалить рецепт?')">

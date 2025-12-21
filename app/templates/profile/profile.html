@@ -2,7 +2,7 @@
 {% from 'bootstrap5/form.html' import render_form %}
 {% block content %}
 <h1>Данные профиля пользователя</h1>
-<img src="{{url_for('static', filename = current_user.image)}}"
+<img src="{{image_url}}"
      class="img-thumbnail"
      style="width: 220px; height: 220px; object-fit: cover;">
 <p><strong>Имя пользователя:</strong> {{form.username.data}}</p>

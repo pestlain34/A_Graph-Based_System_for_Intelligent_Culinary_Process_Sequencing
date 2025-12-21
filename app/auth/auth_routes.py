@@ -32,10 +32,10 @@ def register():
             with db.cursor() as cursor:
                 cursor.execute(
                     """
-                    INSERT INTO user_of_app (username, password, email, birthday_date)
-                    VALUES (%s, %s, %s, %s)
+                    INSERT INTO user_of_app (username, password, email, birthday_date, image, image_mime,image_filename)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
                     """,
-                    (regform.username.data, hashed_password, regform.email.data, regform.birthday_date.data)
+                    (regform.username.data, hashed_password, regform.email.data, regform.birthday_date.data, "photo_2025-12-20_01-36-59.jpg", "jpg/png", "photo_2025-12-20_01-36-59.jpg")
                 )
                 db.commit()
         except (IntegrityError, DatabaseError):

@@ -8,6 +8,7 @@ from psycopg2 import DatabaseError, IntegrityError
 from app.forms.add_to_planner_form import AddToPlannerForm
 from app.forms.delete_form import DeleteForm
 from app.planner.topologicalsort import Step, schedule_improved
+from app.services.utils import generate_s3_url
 from db.db import get_db
 
 bp = Blueprint('planner', __name__, url_prefix='/planner')
@@ -66,6 +67,10 @@ def show_recipes_in_planner():
         flash("Ошибка при загрузке данных из базы", 'danger')
         rows = []
     delete_form = DeleteForm()
+    bucket = current_app.config['S3_BUCKET']
+    for recipe in rows:
+        recipe['image_url'] = generate_s3_url(bucket, recipe['image'], expires_in=3600, public = False)
+
     return render_template('planner/show_recipes_in_planner.html', rows=rows, delete_form=delete_form)
 
 

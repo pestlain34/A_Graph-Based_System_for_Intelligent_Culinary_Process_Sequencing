@@ -1,8 +1,7 @@
-import os
+import mimetypes
 from collections import defaultdict
 from uuid import uuid4
 
-import psycopg2
 from flask import Blueprint, render_template, redirect, url_for, flash, session, current_app, request
 from flask_login import login_required, current_user
 from psycopg2 import IntegrityError, DatabaseError
@@ -14,7 +13,8 @@ from app.forms.delete_form import DeleteForm
 from app.forms.ingredients_form import IngredientForm
 from app.forms.main_data_of_recipe import Main_data_of_recipe_form
 from app.forms.publicate_form import PublicateForm
-from app.my_recipes.utils import save_temp_file, temp_to_permanent, delete_file
+from app.forms.update_recipe_main_form import Main_data_of_recipe_form_update
+from app.services.utils import make_s3_key, upload_fileobj_to_s3, copy_object_s3, delete_object_s3, generate_s3_url
 from db.db import get_db
 
 bp = Blueprint('my_recipes', __name__, url_prefix='/my_recipes')
@@ -44,10 +44,14 @@ def show_recipes():
                 (current_user.id,)
             )
             recipes = cursor.fetchall()
-
     except (DatabaseError, IntegrityError):
         flash("Произошла ошибка, при показе твоих рецептов", 'danger')
         recipes = []
+    bucket = current_app.config['S3_BUCKET']
+    for r in recipes:
+        key = r.get('image')
+        if key and bucket:
+            r['image_url'] = generate_s3_url(bucket, key, expires_in=3600, public=False)
     delete_form = DeleteForm()
     add_to_planner_form = AddToPlannerForm()
     publicate_form = PublicateForm()
@@ -76,7 +80,6 @@ def create_recipe():
         flash("Ошибка при создании рецепта", 'danger')
         return render_template('my_recipes/create_recipe.html', form=form)
 
-
     form.recipe_type.choices = [(row['recipe_type_id'], row['recipe_type_name']) for row in rows]
 
     if form.validate_on_submit():
@@ -93,15 +96,23 @@ def create_recipe():
         }
         f = form.image.data
         if f:
-            rel = save_temp_file(f, current_app.static_folder)
-            session['image'] = rel
-            session['image_mime'] = f.mimetype
-            session['image_filename'] = secure_filename(f.filename or '')
+            bucket = current_app.config['S3_BUCKET']
+            key = make_s3_key('tmp', getattr(f, 'filename', 'upload'))
+            content_type = f.mimetype or mimetypes.guess_type(f)[0]
+            success = upload_fileobj_to_s3(f.stream, bucket, key, content_type=content_type, public=False)
+            if success:
+                session['image'] = key
+                session['image_mime'] = content_type
+                session['image_filename'] = secure_filename(f.filename or '')
+            else:
+                flash("Не удалось загрузить фото", 'danger')
+                return render_template('my_recipes/create_recipe.html', form=form)
         session['steps'] = []
         session['ingredients'] = []
         session['creating_recipe'] = True
         return redirect(url_for('my_recipes.add_ingredient_in_recipe'))
     return render_template('my_recipes/create_recipe.html', form=form)
+
 
 @bp.route('/add_ingredient_in_recipe', methods=['GET', 'POST'])
 @login_required
@@ -177,10 +188,6 @@ def create_step():
             recipe_data = session.get('recipe_data', {})
             steps_data = session.get('steps', [])
             ingredients_data = session.get('ingredients', [])
-            temp_rel = session.get('image')
-            if temp_rel:
-                perm_rel = temp_to_permanent(current_app.static_folder, temp_rel)
-                session['image'] = perm_rel
             try:
                 with db.cursor() as cursor:
                     cursor.execute(
@@ -195,7 +202,25 @@ def create_step():
                     )
                     row = cursor.fetchone()
                     recipe_id = row['recipe_id']
-
+                    bucket = current_app.config['S3_BUCKET']
+                    tmp_key = session.get('image')
+                    perm_key = None
+                    if tmp_key:
+                        filename = session.get('image_filename') or tmp_key.split('/')[-1]
+                        perm_key = f"recipes/{recipe_id}/{uuid4().hex}_{secure_filename(filename)}"
+                        copied = copy_object_s3(bucket, tmp_key, bucket, perm_key)
+                        if copied:
+                            delete_object_s3(bucket, tmp_key)
+                            session['image'] = perm_key
+                        if perm_key:
+                            cursor.execute(
+                                """
+                                UPDATE recipe
+                                SET image = %s
+                                WHERE recipe_id = %s
+                                """,
+                                (perm_key, recipe_id)
+                            )
                     for ingredient in ingredients_data:
                         cursor.execute(
                             """
@@ -263,6 +288,7 @@ def view_recipe(recipe_id):
                 (recipe_id,)
             )
             recipe = cursor.fetchone()
+
             if recipe is None:
                 flash("Такого рецепта нет в базе рецептов", 'danger')
                 return render_template('404.html'), 404
@@ -317,7 +343,8 @@ def view_recipe(recipe_id):
         step['prev_names'] = [id_to_name[previd] for previd in previd_list if previd in id_to_name]
 
     total_time = sum(s['duration'] for s in steps)
-    return render_template("recipe/view_recipe.html", recipe=recipe, steps=steps, total_time=total_time, ingredients= ingredients_data)
+    return render_template("recipe/view_recipe.html", recipe=recipe, steps=steps, total_time=total_time,
+                           ingredients=ingredients_data)
 
 
 @bp.route('/delete_recipe/<int:recipe_id>', methods=['POST'])
@@ -343,7 +370,7 @@ def delete_recipe(recipe_id):
                 flash("У вас нет прав удалять этот рецепт", 'danger')
                 return redirect(url_for('my_recipes.show_recipes'))
             relpath = row['image']
-            delete_file(current_app.static_folder, relpath)
+            delete_object_s3(current_app.config['S3_BUCKET'], relpath)
             cursor.execute(
                 """
                 DELETE
@@ -354,7 +381,9 @@ def delete_recipe(recipe_id):
             )
             cursor.execute(
                 """
-                DELETE FROM recipe_ingredient WHERE recipe_id = %s
+                DELETE
+                FROM recipe_ingredient
+                WHERE recipe_id = %s
                 """,
                 (recipe_id,)
             )
@@ -391,6 +420,116 @@ def publicate_recipe(recipe_id):
     flash("Успешная отправка рецепта на публикацию", 'success')
     return redirect(url_for('my_recipes.show_recipes'))
 
-# @bp.route('/update_recipe/<int:recipe_id>', methods = ['GET', 'POST'])
-# @login_required
-# def update_recipe(recipe_id):
+
+@bp.route('/update_recipe/<int:recipe_id>', methods=['GET', 'POST'])
+@login_required
+def update_recipe(recipe_id):
+    form = Main_data_of_recipe_form_update()
+    db = get_db()
+    try:
+        with db.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT recipe_type_id, recipe_type_name
+                FROM recipe_type
+                ORDER BY recipe_type_name
+                """
+            )
+            recipe_type_data = cursor.fetchall()
+        form.recipe_type.choices = [(r['recipe_type_id'], r['recipe_type_name']) for r in recipe_type_data]
+    except (DatabaseError, IntegrityError):
+        flash("Ошибка изменения рецепта", 'danger')
+        return redirect(url_for('my_recipes.show_recipes'))
+    if request.method == 'GET':
+        try:
+            with db.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT title, description, recipe_type_id, difficulty, image
+                    FROM recipe
+                    WHERE recipe_id = %s
+                    """,
+                    (recipe_id,)
+                )
+                recipe_data = cursor.fetchone()
+
+            if not recipe_data:
+                flash("Рецепт не найден", "danger")
+                return redirect(url_for('my_recipes.show_recipes'))
+            rt_id = recipe_data['recipe_type_id']
+            form.title.data = recipe_data['title']
+            form.description.data = recipe_data['description']
+            form.difficulty.data = recipe_data['difficulty']
+            form.recipe_type.data = int(rt_id) if rt_id is not None else None
+
+        except (DatabaseError, IntegrityError):
+            flash("Ошибка изменения рецепта", 'danger')
+            return redirect(url_for('my_recipes.show_recipes'))
+    if form.validate_on_submit():
+        f = form.image.data
+        new_key = None
+        old_key = None
+        if f:
+            bucket = current_app.config['S3_BUCKET']
+            filename_safe = secure_filename(getattr(f, 'filename', '') or 'image')
+            content_type = f.mimetype or (mimetypes.guess_type(filename_safe)[0] if filename_safe else None)
+            new_key = make_s3_key('recipes', filename_safe)
+            ok = upload_fileobj_to_s3(f.stream, bucket, new_key, content_type=content_type, public=False)
+            if not ok:
+                flash("Не удалось загрузить изображение", 'danger')
+                return redirect(url_for('my_recipes.show_recipes'))
+        try:
+            with db.cursor() as cursor:
+                if new_key:
+                    cursor.execute(
+                        """
+                        SELECT image
+                        FROM recipe
+                        WHERE recipe_id = %s
+                        """,
+                        (recipe_id,)
+                    )
+                    old_key_data = cursor.fetchone()
+
+                    cursor.execute(
+                        """
+                        UPDATE recipe
+                        SET title          = %s,
+                            description    = %s,
+                            recipe_type_id    = %s,
+                            difficulty     = %s,
+                            image          = %s,
+                            image_mime     = %s,
+                            image_filename = %s,
+                            status_of_recipe = %s
+                        WHERE recipe_id = %s
+                        """,
+                        (form.title.data, form.description.data, form.recipe_type.data, form.difficulty.data,
+                         new_key, content_type, filename_safe,'under_consideration',recipe_id)
+                    )
+                else:
+                    cursor.execute(
+                        """
+                        UPDATE recipe
+                        SET title       = %s,
+                            description = %s,
+                            recipe_type_id = %s,
+                            difficulty  = %s,
+                            status_of_recipe = %s
+                        WHERE recipe_id = %s
+                        """,
+                        (form.title.data, form.description.data, form.recipe_type.data, form.difficulty.data, 'under_consideration', recipe_id)
+                    )
+            db.commit()
+
+        except (DatabaseError, IntegrityError):
+            db.rollback()
+            if new_key:
+                delete_object_s3(current_app.config['S3_BUCKET'], new_key)
+            flash("Ошибка при изменении данных", 'danger')
+            return redirect(url_for('my_recipes.show_recipes'))
+        if new_key and old_key and old_key != new_key:
+            delete_object_s3(current_app.config['S3_BUCKET'], old_key_data['image'])
+        flash("Данные рецепта успешно обновлены", 'success')
+        return redirect(url_for('my_recipes.view_recipe', recipe_id=recipe_id))
+    return render_template("my_recipes/update_recipe.html", form= form, recipe_id=recipe_id, title = "Редактирование рецепта")
