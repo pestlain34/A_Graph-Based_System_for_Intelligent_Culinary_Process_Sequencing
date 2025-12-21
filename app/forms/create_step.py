@@ -9,9 +9,9 @@ from wtforms.validators import NumberRange
 class CreateStep_form(FlaskForm):
     name = StringField('Название этапа', validators=[validators.DataRequired(message="Введите название этапа")],
                        render_kw={"placeholder": "Например: Взбитие яйца для теста"})
-    duration = IntegerField('Длительность этапа',
+    duration = IntegerField('Длительность этапа в минутах',
                             validators=[validators.InputRequired(message="Введите длительность этапа"),
-                                        NumberRange(min=1, message="Длительность должна быть минимум 1 минута")],
+                                        NumberRange(min=1, message="Длительность должна быть минимум 1 минута, максимум 1000", max=1000)],
                             render_kw={"placeholder": "Например: 45"})
     type_of = SelectField('Тип этапа', choices=[
         ('active', 'Активный (делаем что-то сами)'),

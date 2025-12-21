@@ -4,7 +4,7 @@ from wtforms import SelectField, IntegerField, validators, SubmitField
 
 class IngredientForm(FlaskForm):
     ingredient = SelectField('Ингредиент', choices=[], coerce=int, validators=[validators.InputRequired()])
-    amount = IntegerField('Количество', validators=[validators.InputRequired(), validators.NumberRange(min=1)])
+    amount = IntegerField('Количество', validators=[validators.InputRequired(), validators.NumberRange(min=1, max=100000)])
     edin_izmer = SelectField('Единица измерения', choices=[
         ('g', 'г'),
         ('kg', 'кг'),
