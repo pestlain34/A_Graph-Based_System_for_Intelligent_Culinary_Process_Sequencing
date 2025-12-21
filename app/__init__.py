@@ -29,11 +29,13 @@ load_dotenv()
 def create_app(test_config=None):
     app = Flask(__name__)
     app.config.from_mapping(
-        SECRET_KEY="dev",
-        DATABASE=(
-            f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_SERVER')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
-        )
-
+        SECRET_KEY=os.getenv('SECRET_KEY'),
+        DATABASE=os.getenv('DATABASE'),
+        DB_NAME=os.getenv('DB_NAME'),
+        DB_USER=os.getenv('DB_USER'),
+        DB_PASSWORD=os.getenv('DB_PASSWORD'),
+        DB_HOST=os.getenv('DB_HOST'),
+        DB_PORT=os.getenv('DB_PORT')
     )
     app.config.from_mapping(
         MAIL_SERVER=os.getenv('MAIL_SERVER'),
@@ -44,7 +46,6 @@ def create_app(test_config=None):
         MAIL_PASSWORD=os.getenv('MAIL_PASSWORD'),
         MAIL_DEFAULT_SENDER=os.getenv('MAIL_DEFAULT_SENDER') or os.getenv('MAIL_USERNAME'),
         PASSWORD_RESET_TOKEN_EXPIRATION=int(os.getenv('PASSWORD_RESET_TOKEN_EXPIRATION', 3600)),
-        UPLOAD_FOLDER=os.path.join(app.root_path, 'static', 'image', 'recipes'),
         AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID'),
         AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY'),
         AWS_REGION = os.getenv('AWS_REGION'),
