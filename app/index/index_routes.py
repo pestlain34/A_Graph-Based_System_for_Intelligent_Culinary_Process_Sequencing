@@ -18,7 +18,6 @@ def index():
     add_to_planner_form = AddToPlannerForm()
     delete_form = DeleteForm()
     search_form = SearchForm(request.args)
-
     try:
         with db.cursor() as cursor:
             cursor.execute(
@@ -47,6 +46,7 @@ def index():
                 """
             )
             data_category = cursor.fetchall()
+
         search_form.recipe_type.choices = [(0, "Все")] + [(r['recipe_type_id'], r['recipe_type_name']) for r in
                                                           data_recipe_types]
         search_form.ingredient.choices = [(0, "Все")] + [(r['ingredient_id'], r['name']) for r in data_ingredients]
@@ -78,9 +78,7 @@ def index():
                      difficulty,
                      creation_date,
                      status_of_recipe,
-                     image,
-                     image_mime,
-                     image_filename
+                     image
               FROM recipe AS r \
               """
         if where:

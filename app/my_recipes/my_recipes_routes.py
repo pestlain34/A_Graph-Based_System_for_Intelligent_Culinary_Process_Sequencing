@@ -1,12 +1,10 @@
 import mimetypes
 from collections import defaultdict
 from uuid import uuid4
-
 from flask import Blueprint, render_template, redirect, url_for, flash, session, current_app, request
 from flask_login import login_required, current_user
 from psycopg2 import IntegrityError, DatabaseError
 from werkzeug.utils import secure_filename
-
 from app.forms.add_to_planner_form import AddToPlannerForm
 from app.forms.create_step import CreateStep_form
 from app.forms.delete_form import DeleteForm
@@ -34,9 +32,7 @@ def show_recipes():
                        difficulty,
                        creation_date,
                        status_of_recipe,
-                       image,
-                       image_mime,
-                       image_filename
+                       image
                 FROM recipe
                 WHERE user_id = %s
                 ORDER BY creation_date DESC
@@ -91,8 +87,6 @@ def create_recipe():
             'user_id': current_user.id,
             'status_of_recipe': 'not_publicated',
             'image_path': None,
-            'image_mimetype': None,
-            'image_filename': None,
         }
         f = form.image.data
         if f:
@@ -193,12 +187,12 @@ def create_step():
                     cursor.execute(
                         """
                         INSERT INTO recipe (difficulty, title, description, user_id, recipe_type_id, status_of_recipe,
-                                            image, image_mime, image_filename)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING recipe_id
+                                            image)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING recipe_id
                         """,
                         (recipe_data['difficulty'], recipe_data['title'], recipe_data['description'],
                          recipe_data['user_id'], recipe_data['recipe_type_id'], recipe_data['status_of_recipe'],
-                         session['image'], session['image_mime'], session['image_filename'])
+                         session['image'])
                     )
                     row = cursor.fetchone()
                     recipe_id = row['recipe_id']
@@ -499,13 +493,11 @@ def update_recipe(recipe_id):
                             recipe_type_id    = %s,
                             difficulty     = %s,
                             image          = %s,
-                            image_mime     = %s,
-                            image_filename = %s,
                             status_of_recipe = %s
                         WHERE recipe_id = %s
                         """,
                         (form.title.data, form.description.data, form.recipe_type.data, form.difficulty.data,
-                         new_key, content_type, filename_safe,'under_consideration',recipe_id)
+                         new_key,'under_consideration',recipe_id)
                     )
                 else:
                     cursor.execute(

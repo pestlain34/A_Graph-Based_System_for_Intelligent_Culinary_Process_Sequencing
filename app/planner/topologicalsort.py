@@ -53,8 +53,6 @@ def topologicalsort(steps: List[Step]):
 
 def calc_all_critical_times(steps: List[Step]):
     memo = {}
-    id_to_step = {s.id: s for s in steps}
-
     def dfs(s: Step):
         if s.id in memo:
             return memo[s.id]

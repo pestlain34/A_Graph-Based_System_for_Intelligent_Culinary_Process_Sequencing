@@ -1,6 +1,4 @@
 import mimetypes
-import os
-from uuid import uuid4
 
 from flask import (
     Blueprint, flash, redirect, render_template, request, url_for, current_app
@@ -87,9 +85,7 @@ def update_profile_picture():
                 cursor.execute(
                     """
                     UPDATE user_of_app
-                    SET image          = %s,
-                        image_mime     = %s,
-                        image_filename = %s
+                    SET image          = %s
                     WHERE user_id = %s
                     """,
                     (new_image, content_type, image_filename_new, current_user.id)
@@ -100,9 +96,6 @@ def update_profile_picture():
 
 
             current_user.image = new_image
-            current_user.image_mime = content_type
-            current_user.image_filename = image_filename_new
-
         except (DatabaseError, IntegrityError):
             db.rollback()
             flash("Ошибка, при смене фото профиля", 'danger')

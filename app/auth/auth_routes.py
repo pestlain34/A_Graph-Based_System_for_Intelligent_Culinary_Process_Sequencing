@@ -1,6 +1,4 @@
 from urllib.parse import urlsplit
-
-import psycopg2
 from psycopg2 import DatabaseError, IntegrityError
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import (
@@ -32,10 +30,11 @@ def register():
             with db.cursor() as cursor:
                 cursor.execute(
                     """
-                    INSERT INTO user_of_app (username, password, email, birthday_date, image, image_mime,image_filename)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    INSERT INTO user_of_app (username, password, email, birthday_date, image)
+                    VALUES (%s, %s, %s, %s, %s)
                     """,
-                    (regform.username.data, hashed_password, regform.email.data, regform.birthday_date.data, "photo_2025-12-20_01-36-59.jpg", "jpg/png", "photo_2025-12-20_01-36-59.jpg")
+                    (regform.username.data, hashed_password, regform.email.data, regform.birthday_date.data,
+                     "photo_2025-12-20_01-36-59.jpg")
                 )
                 db.commit()
         except (IntegrityError, DatabaseError):
@@ -67,9 +66,7 @@ def login():
                            birthday_date,
                            date_of_registr,
                            is_banned,
-                           image,
-                           image_mime,
-                           image_filename
+                           image
                     FROM user_of_app
                     WHERE username = %s
                     """,
@@ -82,13 +79,14 @@ def login():
         if data is None or not check_password_hash(data['password'], loginform.password.data):
             flash(f'Неудачная попытка, попробуйте еще раз', 'danger')
             return render_template('auth/login.html', title='Вход', form=loginform)
-        user_id, username, password, role, email, birthday_date, date_of_registr, is_banned, image, image_mime, image_filename = data['user_id'], data[
+        user_id, username, password, role, email, birthday_date, date_of_registr, is_banned, image = data['user_id'], \
+        data[
             'username'], data['password'], data['role'], data['email'], data['birthday_date'], data['date_of_registr'], \
-        data['is_banned'], data['image'], data['image_mime'], data['image_filename']
+            data['is_banned'], data['image']
         if is_banned:
             flash("Ваша учетная запись заблокирована", 'danger')
             return render_template('auth/login.html', title='Вход', form=loginform)
-        user = User(user_id, username, password, role, email, birthday_date, date_of_registr, is_banned, image, image_mime, image_filename)
+        user = User(user_id, username, password, role, email, birthday_date, date_of_registr, is_banned, image)
         login_user(user, remember=loginform.remember_me.data)
         flash(f'Поздравляем, {user.username}, вы успешно вошли в систему', 'success')
         next = request.args.get('next')

@@ -53,9 +53,7 @@ def show_recipes_in_planner():
                        description,
                        difficulty,
                        creation_date,
-                       image,
-                       image_mime,
-                       image_filename
+                       image
                 FROM recipe
                 WHERE recipe_id = ANY (%s)
                 ORDER BY creation_date DESC
