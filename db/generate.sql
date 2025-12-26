@@ -18,7 +18,7 @@ CREATE TABLE user_of_app
     email           VARCHAR(100) UNIQUE NOT NULL,
     role            VARCHAR(50)         NOT NULL DEFAULT 'usr',
     is_banned       BOOL                NOT NULL DEFAULT FALSE,
-    image           VARCHAR(255)        NOT NULL DEFAULT 'photo_2025-12-20_01-36-59.jpg',
+    image           VARCHAR(255)        NOT NULL DEFAULT 'photo_2025-12-20_01-36-59.jpg'
 );
 CREATE TABLE recipe_type
 (
