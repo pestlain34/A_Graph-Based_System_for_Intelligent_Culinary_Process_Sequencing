@@ -7,7 +7,7 @@ from psycopg2 import DatabaseError, IntegrityError
 
 from app.forms.add_to_planner_form import AddToPlannerForm
 from app.forms.delete_form import DeleteForm
-from app.planner.topologicalsort import Step, schedule_improved
+from app.planner.topologicalsort import Step, optimal_schedule
 from app.services.utils import generate_s3_url
 from db.db import get_db
 
@@ -143,7 +143,8 @@ def start_planner():
         flash("Нет шагов для выбранных рецептов", "info")
         return redirect(url_for('planner.show_recipes_in_planner'))
     try:
-        plan = schedule_improved(steps)
+        res = optimal_schedule(steps)
+        plan = res['plan']
 
     except Exception:
         flash("Не удалось составить план", 'danger')
